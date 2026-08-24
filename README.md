@@ -16,7 +16,7 @@ Esse projeto faz parte do **Projeto Integrador** do segundo semestre de 2026 da 
 | Gabriel Francisco Marvullo Rossini | 24211592 |
 | Guilherme Gabriel Martins de Freitas | 24214988 |
 | Maikon Nogueira Florentino Marins | 2207270 |
-| Marcio Alberto Pires | — |
+| Marcio Alberto Pires | 24221136 |
 | Tiago Luiz de Oliveira Carpinteiro | — |
 | Wesley Eduardo Maximiano Firmino | 24226877 |
 
