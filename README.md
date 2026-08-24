@@ -17,7 +17,7 @@ Esse projeto faz parte do **Projeto Integrador** do segundo semestre de 2026 da 
 | Guilherme Gabriel Martins de Freitas | 24214988 |
 | Maikon Nogueira Florentino Marins | 2207270 |
 | Marcio Alberto Pires | 24221136 |
-| Tiago Luiz de Oliveira Carpinteiro | — |
+| Tiago Luiz de Oliveira Carpinteiro | 24208627 |
 | Wesley Eduardo Maximiano Firmino | 24226877 |
 
 ## Pré-requisitos
