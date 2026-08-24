@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca — Sistema de Gestão</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --border: #262b36;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --accent: #7aa2ff;
+    --accent2: #6c5ce7;
+    --ok: #3ddc84;
+    --warn: #ffb020;
+    --err: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    min-height: 100vh;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 20px 60px; }
+
+  h1 { font-size: 1.7rem; margin-bottom: 6px; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--muted); margin-bottom: 26px; font-size: 0.95rem; }
+
+  /* ---------- abas ---------- */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+  .tab {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.98rem;
+    font-weight: 600;
+    padding: 12px 18px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ---------- formulario ---------- */
+  .form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    max-width: 640px;
+  }
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .field label .req { color: var(--err); }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 0.98rem;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .hint { font-size: 0.78rem; color: var(--muted); margin-top: 5px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+
+  button {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 10px;
+    color: #0b0e14;
+    font-weight: 700;
+    font-size: 0.98rem;
+    padding: 12px 22px;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.1s;
+    font-family: inherit;
+  }
+  button:hover { filter: brightness(1.12); }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.55; cursor: wait; }
+  .btn-ghost {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--accent); filter: none; }
+  .btn-danger {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--err);
+    font-weight: 600;
+  }
+  .btn-danger:hover { border-color: var(--err); background: rgba(255,107,107,0.08); filter: none; }
+  .btn-small { padding: 8px 14px; font-size: 0.85rem; }
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .btn-group .spacer { flex: 1; }
+
+  /* ---------- busca da API ---------- */
+  .search-bar { display: flex; gap: 10px; margin-bottom: 24px; }
+  .search-bar input { flex: 1; }
+  input {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 0.98rem;
+    padding: 12px 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  input:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--muted); }
+
+  /* ---------- mensagens ---------- */
+  .msg { text-align: center; color: var(--muted); padding: 40px 0; }
+  .msg.error { color: var(--err); }
+  .fonte {
+    text-align: center;
+    color: var(--accent);
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  /* ---------- cards ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .thumb {
+    background: #1d2129;
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .thumb img { max-height: 100%; max-width: 100%; object-fit: contain; }
+  .thumb .no-img { color: var(--muted); font-size: 0.85rem; }
+  .info { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .title { font-size: 1rem; font-weight: 700; line-height: 1.3; }
+  .author { color: var(--muted); font-size: 0.88rem; }
+  .meta { color: var(--muted); font-size: 0.8rem; }
+  .desc { font-size: 0.85rem; color: #c3c7cc; line-height: 1.5; flex: 1; }
+
+  .badge {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .badge.ok { background: rgba(61,220,132,0.15); color: var(--ok); }
+  .badge.warn { background: rgba(255,176,32,0.15); color: var(--warn); }
+  .badge.err { background: rgba(255,107,107,0.15); color: var(--err); }
+
+  .card a, .card-actions a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .card a:hover { text-decoration: underline; }
+  .card-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .toolbar input[type="text"] { flex: 1; min-width: 200px; }
+  .toolbar .count { color: var(--muted); font-size: 0.85rem; margin-left: auto; }
+  .filters-row {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 22px;
+  }
+  .filters-row label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.82rem; color: var(--muted); white-space: nowrap;
+  }
+  .filters-row select, .filters-row input[type="number"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.9rem;
+    padding: 7px 10px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    max-width: 220px;
+  }
+  .filters-row select:focus, .filters-row input[type="number"]:focus { border-color: var(--accent); }
+  .filters-row .sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+  .toolbar select, .toolbar input[type="number"] {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.9rem;
+    padding: 9px 12px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .toolbar select:focus, .toolbar input[type="number"]:focus { border-color: var(--accent); }
+
+  /* ---------- toast ---------- */
+  #toast {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+    opacity: 0;
+    transition: transform 0.3s, opacity 0.3s;
+    z-index: 10;
+    pointer-events: none;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  #toast.ok { border-color: var(--ok); color: var(--ok); }
+  #toast.err { border-color: var(--err); color: var(--err); }
+
+  /* ---------- modal confirmar ---------- */
+  .modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    max-width: 420px;
+    width: 90%;
+  }
+  .modal h3 { margin-bottom: 10px; }
+  .modal p { color: var(--muted); font-size: 0.92rem; margin-bottom: 18px; }
+  .modal .btn-group { margin-top: 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📚 <span>Biblioteca</span> — Sistema de Gestão</h1>
+  <p class="sub">Catálogo de livros com busca automática (Google Books + Open Library). Protótipo.</p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-view="catalogo" role="tab" aria-selected="true">📖 Catálogo</button>
+    <button class="tab" data-view="cadastrar" role="tab" aria-selected="false">➕ Cadastrar</button>
+    <button class="tab" data-view="buscar" role="tab" aria-selected="false">🔎 Buscar livro</button>
+  </nav>
+
+  <!-- ============ CATÁLOGO ============ -->
+  <section id="view-catalogo" class="view active">
+    <div class="toolbar">
+      <input id="filtro" type="text" placeholder="Filtrar por título, autor, ISBN ou editora…" aria-label="Filtrar catálogo">
+      <span id="count" class="count">0 livros</span>
+      <button class="btn-ghost btn-small" id="btnExportar" type="button">⬇ Exportar</button>
+      <button class="btn-ghost btn-small" id="btnImportar" type="button">⬆ Importar</button>
+      <input id="fileImport" type="file" accept=".json" style="display:none">
+    </div>
+    <div class="filters-row">
+      <label>Ordenar
+        <select id="filtroOrdem" aria-label="Ordenar catálogo">
+          <option value="titulo-az">Título A–Z</option>
+          <option value="titulo-za">Título Z–A</option>
+          <option value="ano-desc">Ano ↓</option>
+          <option value="ano-asc">Ano ↑</option>
+        </select>
+      </label>
+      <label>Autor
+        <select id="filtroAutor" aria-label="Filtrar por autor">
+          <option value="">Todos</option>
+        </select>
+      </label>
+      <label>Editora
+        <select id="filtroEditora" aria-label="Filtrar por editora">
+          <option value="">Todas</option>
+        </select>
+      </label>
+      <label>Ano
+        <input id="filtroAno" type="number" min="0" max="2100" placeholder="Ex.: 1999" aria-label="Filtrar por ano">
+      </label>
+    </div>
+    <div id="msgCatalogo" class="msg">Nenhum livro no acervo ainda. Cadastre ou busque livros.</div>
+    <div id="gridCatalogo" class="grid" style="display:none"></div>
+  </section>
+
+  <!-- ============ CADASTRAR ============ -->
+  <section id="view-cadastrar" class="view">
+    <form id="formLivro" class="form" novalidate>
+      <input type="hidden" id="fId">
+      <div class="field">
+        <label for="fTitulo">Título <span class="req">*</span></label>
+        <input id="fTitulo" required list="sug-titulo">
+        <div class="hint">Sugestões do acervo ou clique em "Auto preencher" para buscar os dados na internet pelo título.</div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="fAutor">Autor</label>
+          <input id="fAutor" list="sug-autor">
+        </div>
+        <div class="field">
+          <label for="fEditora">Editora</label>
+          <input id="fEditora" list="sug-editora">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="fIsbn">ISBN</label>
+          <input id="fIsbn" placeholder="Ex.: 9788535902778" list="sug-isbn">
+        </div>
+        <div class="field">
+          <label for="fAno">Ano de publicação</label>
+          <input id="fAno" type="number" min="0" max="2100" placeholder="Ex.: 1999">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="fPaginas">Páginas</label>
+          <input id="fPaginas" type="number" min="1" placeholder="Ex.: 256">
+        </div>
+        <div class="field">
+          <label for="fExemplares">Nº de exemplares</label>
+          <input id="fExemplares" type="number" min="1" value="1">
+        </div>
+      </div>
+      <div class="field">
+        <label for="fCapa">URL da capa</label>
+        <input id="fCapa" type="url" placeholder="https://…">
+      </div>
+      <div class="field">
+        <label for="fDesc">Descrição</label>
+        <textarea id="fDesc" placeholder="Resumo / sinopse…"></textarea>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn-ghost" id="btnAutoPreencher">⚡ Auto preencher</button>
+        <button type="submit" id="btnSalvar">💾 Salvar livro</button>
+        <button type="button" class="btn-ghost" id="btnLimpar">Limpar</button>
+        <span class="spacer"></span>
+        <a href="#" id="linkCancelarEdit" class="btn-ghost" style="display:none; text-decoration:none; align-self:center">Cancelar edição</a>
+      </div>
+    </form>
+    <datalist id="sug-titulo"></datalist>
+    <datalist id="sug-autor"></datalist>
+    <datalist id="sug-editora"></datalist>
+    <datalist id="sug-isbn"></datalist>
+  </section>
+
+  <!-- ============ BUSCAR (API) ============ -->
+  <section id="view-buscar" class="view">
+    <form id="form" class="search-bar">
+      <input id="q" type="text" placeholder="Digite o nome de um livro, autor ou assunto…">
+      <button id="btn" type="submit">Buscar</button>
+    </form>
+    <div id="msg" class="msg">Digite algo acima para buscar.</div>
+    <div id="fonte" class="fonte" style="display:none"></div>
+    <div id="grid" class="grid" style="display:none"></div>
+  </section>
+</div>
+
+<div id="modal" class="modal-bg" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3 id="modalTitulo">Excluir livro</h3>
+    <p id="modalTexto">Tem certeza?</p>
+    <div class="btn-group">
+      <button class="btn-danger" id="btnConfirmar">Excluir</button>
+      <button class="btn-ghost" id="btnCancelar">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ================= ESTADO ================= */
+const STORAGE_KEY = 'sgbl_livros';
+let livros = load();
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    console.warn('Falha ao ler acervo:', e);
+    return [];
+  }
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(livros));
+  atualizarSugestoes();
+  atualizarFiltrosDinamicos();
+}
+function newId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+function normIsbn(v) {
+  return (v || '').replace(/[^0-9Xx]/g, '').toUpperCase();
+}
+function toast(msg, tipo) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = tipo === 'ok' || tipo === 'err' ? tipo : '';
+  el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+/* ================= VALIDAÇÃO ================= */
+function validarLivro(d) {
+  const erros = [];
+  if (!d.titulo || !d.titulo.trim()) erros.push('título é obrigatório');
+  const ano = Number(d.ano);
+  if (d.ano && (!Number.isInteger(ano) || ano < 0 || ano > 2100)) erros.push('ano inválido');
+  const paginas = Number(d.paginas);
+  if (d.paginas && (!Number.isInteger(paginas) || paginas < 1)) erros.push('páginas inválidas');
+  const exemplares = Number(d.exemplares || 1);
+  if (!Number.isInteger(exemplares) || exemplares < 1) erros.push('exemplares deve ser ≥ 1');
+  if (d.isbn) {
+    const n = normIsbn(d.isbn);
+    if (n.length < 10) erros.push('ISBN inválido (mínimo 10 dígitos)');
+  }
+  if (d.capa && !/^https?:\/\//i.test(d.capa)) erros.push('URL da capa deve começar com http(s)');
+  return { ok: erros.length === 0, erros };
+}
+function sanitizar(d) {
+  const agora = new Date().toISOString();
+  return {
+    id: d.id || newId(),
+    titulo: d.titulo.trim(),
+    autor: (d.autor || '').trim(),
+    editora: (d.editora || '').trim(),
+    isbn: normIsbn(d.isbn),
+    ano: d.ano ? String(d.ano) : '',
+    paginas: d.paginas ? String(d.paginas) : '',
+    capa: (d.capa || '').trim(),
+    descricao: (d.descricao || '').trim(),
+    exemplares: Math.max(1, Number(d.exemplares) || 1),
+    criadoEm: d.criadoEm || agora,
+    atualizadoEm: agora
+  };
+}
+function isbnDuplicado(isbn, ignorarId) {
+  if (!isbn) return false;
+  return livros.some(l => l.isbn === isbn && l.id !== ignorarId);
+}
+
+/* ================= CRUD ================= */
+function adicionarLivro(dados) {
+  const v = validarLivro(dados);
+  if (!v.ok) throw new Error(v.erros.join('; '));
+  if (isbnDuplicado(normIsbn(dados.isbn))) throw new Error('ISBN já cadastrado no acervo');
+  const livro = sanitizar(dados);
+  livros.push(livro);
+  save();
+  return livro;
+}
+function editarLivro(id, dados) {
+  const idx = livros.findIndex(l => l.id === id);
+  if (idx === -1) throw new Error('Livro não encontrado');
+  const v = validarLivro(dados);
+  if (!v.ok) throw new Error(v.erros.join('; '));
+  if (isbnDuplicado(normIsbn(dados.isbn), id)) throw new Error('ISBN já cadastrado em outro livro');
+  const livro = sanitizar({ ...dados, id, criadoEm: livros[idx].criadoEm });
+  livros[idx] = livro;
+  save();
+  return livro;
+}
+function excluirLivro(id) {
+  const antes = livros.length;
+  livros = livros.filter(l => l.id !== id);
+  if (livros.length === antes) throw new Error('Livro não encontrado');
+  save();
+}
+function filtrarLivros(termo) {
+  const t = (termo || '').trim().toLowerCase();
+  if (!t) return livros;
+  return livros.filter(l =>
+    l.titulo.toLowerCase().includes(t) ||
+    l.autor.toLowerCase().includes(t) ||
+    l.editora.toLowerCase().includes(t) ||
+    l.isbn.includes(t)
+  );
+}
+
+function obterListaCatalogo() {
+  const termo = (document.getElementById('filtro').value || '').toLowerCase();
+  const autor = (document.getElementById('filtroAutor').value || '').toLowerCase();
+  const editora = (document.getElementById('filtroEditora').value || '').toLowerCase();
+  const ano = String(document.getElementById('filtroAno').value || '').trim();
+  const ordem = document.getElementById('filtroOrdem').value;
+
+  let lista = livros.filter(l =>
+    (!termo ||
+      l.titulo.toLowerCase().includes(termo) ||
+      l.autor.toLowerCase().includes(termo) ||
+      l.editora.toLowerCase().includes(termo) ||
+      l.isbn.includes(termo)) &&
+    (!autor || l.autor.toLowerCase().includes(autor)) &&
+    (!editora || l.editora.toLowerCase().includes(editora)) &&
+    (!ano || String(l.ano) === ano)
+  );
+
+  const pt = (a, b) => (a || '').localeCompare(b || '', 'pt', { sensitivity: 'base' });
+  if (ordem === 'titulo-az') lista.sort((a, b) => pt(a.titulo, b.titulo));
+  else if (ordem === 'titulo-za') lista.sort((a, b) => pt(b.titulo, a.titulo));
+  else if (ordem === 'ano-desc') lista.sort((a, b) => (b.ano || 0) - (a.ano || 0));
+  else if (ordem === 'ano-asc') lista.sort((a, b) => (a.ano || 0) - (b.ano || 0));
+
+  return lista;
+}
+
+function atualizarFiltrosDinamicos() {
+  const autores = [...new Set(livros.map(l => (l.autor || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt'));
+  const editoras = [...new Set(livros.map(l => (l.editora || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt'));
+  const selAutor = document.getElementById('filtroAutor');
+  const selEditora = document.getElementById('filtroEditora');
+  const vAutor = selAutor.value;
+  const vEditora = selEditora.value;
+  selAutor.innerHTML = '<option value="">Todos</option>';
+  for (const a of autores) {
+    const opt = document.createElement('option');
+    opt.value = a;
+    opt.textContent = a;
+    selAutor.appendChild(opt);
+  }
+  selEditora.innerHTML = '<option value="">Todas</option>';
+  for (const e of editoras) {
+    const opt = document.createElement('option');
+    opt.value = e;
+    opt.textContent = e;
+    selEditora.appendChild(opt);
+  }
+  selAutor.value = vAutor;
+  selEditora.value = vEditora;
+}
+
+/* ================= SUGESTÕES DE PREENCHIMENTO ================= */
+function atualizarSugestoes() {
+  const map = { 'sug-titulo': 'titulo', 'sug-autor': 'autor', 'sug-editora': 'editora', 'sug-isbn': 'isbn' };
+  for (const [dlId, campo] of Object.entries(map)) {
+    const dl = document.getElementById(dlId);
+    if (!dl) continue;
+    const valores = [...new Set(livros.map(l => (l[campo] || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt'));
+    dl.innerHTML = '';
+    for (const v of valores) {
+      const opt = document.createElement('option');
+      opt.value = v;
+      dl.appendChild(opt);
+    }
+  }
+}
+
+function autopreencherPorTitulo() {
+  if (fId.value) return; // em modo edição, não sobrescreve nada
+  const titulo = document.getElementById('fTitulo').value.trim().toLowerCase();
+  if (!titulo) return;
+  const livro = livros.find(l => l.titulo.trim().toLowerCase() === titulo);
+  if (!livro) return;
+  const campos = {
+    fAutor: livro.autor, fEditora: livro.editora, fIsbn: livro.isbn,
+    fAno: livro.ano, fPaginas: livro.paginas, fCapa: livro.capa, fDesc: livro.descricao
+  };
+  let preenchidos = 0;
+  for (const [id, valor] of Object.entries(campos)) {
+    const el = document.getElementById(id);
+    if (valor && !el.value.trim()) { el.value = valor; preenchidos++; }
+  }
+  if (preenchidos > 0) {
+    toast('Preenchido automaticamente a partir de "' + livro.titulo + '" (' + preenchidos + ' campo(s))', 'ok');
+  }
+}
+
+/* ================= RENDER: catálogo ================= */
+const gridCatalogo = document.getElementById('gridCatalogo');
+const msgCatalogo = document.getElementById('msgCatalogo');
+const filtro = document.getElementById('filtro');
+const countEl = document.getElementById('count');
+
+function esc(s) {
+  return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function formatDesc(v) {
+  const s = (v || '').replace(/<[^>]*>/g, '');
+  return s.length > 140 ? s.slice(0, 137) + '…' : s;
+}
+
+function renderCatalogo() {
+  const lista = obterListaCatalogo();
+  countEl.textContent = livros.length + (lista.length !== livros.length ? ' · ' + lista.length + ' filtrados' : '') + ' livro(s)';
+  if (livros.length === 0) {
+    msgCatalogo.style.display = '';
+    msgCatalogo.textContent = 'Nenhum livro no acervo ainda. Cadastre ou busque livros.';
+    gridCatalogo.style.display = 'none';
+    gridCatalogo.innerHTML = '';
+    return;
+  }
+  if (lista.length === 0) {
+    msgCatalogo.style.display = '';
+    msgCatalogo.textContent = 'Nenhum livro corresponde ao filtro.';
+    gridCatalogo.style.display = 'none';
+    gridCatalogo.innerHTML = '';
+    return;
+  }
+  msgCatalogo.style.display = 'none';
+  gridCatalogo.innerHTML = '';
+  gridCatalogo.style.display = '';
+
+  for (const l of lista) {
+    const metaBits = [];
+    if (l.editora) metaBits.push(esc(l.editora));
+    if (l.ano) metaBits.push(esc(l.ano));
+    if (l.paginas) metaBits.push(l.paginas + ' págs');
+    if (l.isbn) metaBits.push('ISBN ' + l.isbn);
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<div class="thumb">' +
+        (l.capa
+          ? '<img src="' + esc(l.capa) + '" alt="Capa de ' + esc(l.titulo) + '" loading="lazy" onerror="this.outerHTML=\'<div class=&quot;no-img&quot;>Sem capa</div>\'">'
+          : '<div class="no-img">Sem capa</div>') +
+      '</div>' +
+      '<div class="info">' +
+        '<div class="title">' + esc(l.titulo) + '</div>' +
+        '<div class="author">' + esc(l.autor || 'Autor desconhecido') + '</div>' +
+        (metaBits.length ? '<div class="meta">' + metaBits.join(' · ') + '</div>' : '') +
+        '<div class="desc">' + esc(formatDesc(l.descricao)) + '</div>' +
+        '<span class="badge ' + (l.exemplares > 0 ? 'ok' : 'err') + '">' + l.exemplares + ' exemplar(es) ' + (l.exemplares > 0 ? 'disponível(is)' : '— esgotado') + '</span>' +
+        '<div class="card-actions">' +
+          '<a href="#" data-edit="' + l.id + '" role="button">✏️ Editar</a> &nbsp; ' +
+          '<a href="#" data-del="' + l.id + '" role="button" style="color:var(--err)">🗑️ Excluir</a>' +
+        '</div>' +
+      '</div>';
+    gridCatalogo.appendChild(card);
+  }
+}
+
+/* ================= RENDER: formulário ================= */
+const formLivro = document.getElementById('formLivro');
+const fId = document.getElementById('fId');
+const linkCancelarEdit = document.getElementById('linkCancelarEdit');
+const btnSalvar = document.getElementById('btnSalvar');
+
+function preencherForm(livro) {
+  fId.value = livro ? livro.id : '';
+  document.getElementById('fTitulo').value = livro ? livro.titulo : '';
+  document.getElementById('fAutor').value = livro ? livro.autor : '';
+  document.getElementById('fEditora').value = livro ? livro.editora : '';
+  document.getElementById('fIsbn').value = livro ? livro.isbn : '';
+  document.getElementById('fAno').value = livro ? livro.ano : '';
+  document.getElementById('fPaginas').value = livro ? livro.paginas : '';
+  document.getElementById('fExemplares').value = livro ? livro.exemplares : 1;
+  document.getElementById('fCapa').value = livro ? livro.capa : '';
+  document.getElementById('fDesc').value = livro ? livro.descricao : '';
+  btnSalvar.textContent = livro ? '💾 Salvar alterações' : '💾 Salvar livro';
+  linkCancelarEdit.style.display = livro ? '' : 'none';
+}
+function limparForm() { preencherForm(null); }
+
+formLivro.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const dados = {
+    titulo: document.getElementById('fTitulo').value,
+    autor: document.getElementById('fAutor').value,
+    editora: document.getElementById('fEditora').value,
+    isbn: document.getElementById('fIsbn').value,
+    ano: document.getElementById('fAno').value,
+    paginas: document.getElementById('fPaginas').value,
+    capa: document.getElementById('fCapa').value,
+    descricao: document.getElementById('fDesc').value,
+    exemplares: document.getElementById('fExemplares').value
+  };
+  try {
+    if (fId.value) {
+      editarLivro(fId.value, dados);
+      toast('Livro atualizado!', 'ok');
+    } else {
+      adicionarLivro(dados);
+      toast('Livro adicionado ao acervo!', 'ok');
+    }
+    limparForm();
+    switchTab('catalogo');
+    renderCatalogo();
+  } catch (err) {
+    toast('Erro: ' + err.message, 'err');
+  }
+});
+
+/* ================= ABAS ================= */
+function switchTab(nome) {
+  document.querySelectorAll('.tab').forEach(t => {
+    const ativo = t.dataset.view === nome;
+    t.classList.toggle('active', ativo);
+    t.setAttribute('aria-selected', ativo ? 'true' : 'false');
+  });
+  document.querySelectorAll('.view').forEach(v => {
+    v.classList.toggle('active', v.id === 'view-' + nome);
+  });
+  if (nome === 'catalogo') renderCatalogo();
+}
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => switchTab(t.dataset.view));
+});
+
+/* ================= AÇÕES DO CATÁLOGO ================= */
+gridCatalogo.addEventListener('click', (e) => {
+  const alvo = e.target.closest('a[data-edit], a[data-del]');
+  if (!alvo) return;
+  e.preventDefault();
+  const id = alvo.dataset.edit || alvo.dataset.del;
+  if (alvo.dataset.edit) {
+    const livro = livros.find(l => l.id === id);
+    if (!livro) return;
+    preencherForm(livro);
+    switchTab('cadastrar');
+  } else {
+    confirmarExclusao(id);
+  }
+});
+
+let pendenteExclusao = null;
+function confirmarExclusao(id) {
+  pendenteExclusao = id;
+  document.getElementById('modalTexto').textContent = 'Excluir este livro do acervo? Esta ação não pode ser desfeita.';
+  document.getElementById('modal').classList.add('show');
+}
+document.getElementById('btnConfirmar').addEventListener('click', () => {
+  document.getElementById('modal').classList.remove('show');
+  if (!pendenteExclusao) return;
+  try {
+    excluirLivro(pendenteExclusao);
+    toast('Livro excluído.', 'ok');
+  } catch (err) {
+    toast('Erro: ' + err.message, 'err');
+  }
+  pendenteExclusao = null;
+  renderCatalogo();
+});
+document.getElementById('btnCancelar').addEventListener('click', () => {
+  document.getElementById('modal').classList.remove('show');
+  pendenteExclusao = null;
+});
+document.getElementById('modal').addEventListener('click', (e) => {
+  if (e.target.id === 'modal') { document.getElementById('modal').classList.remove('show'); pendenteExclusao = null; }
+});
+
+document.getElementById('btnLimpar').addEventListener('click', limparForm);
+linkCancelarEdit.addEventListener('click', (e) => { e.preventDefault(); limparForm(); });
+filtro.addEventListener('input', renderCatalogo);
+document.getElementById('filtroOrdem').addEventListener('change', renderCatalogo);
+document.getElementById('filtroAutor').addEventListener('change', renderCatalogo);
+document.getElementById('filtroEditora').addEventListener('change', renderCatalogo);
+document.getElementById('filtroAno').addEventListener('input', renderCatalogo);
+document.getElementById('fTitulo').addEventListener('blur', autopreencherPorTitulo);
+
+/* ================= EXPORTAR / IMPORTAR ================= */
+document.getElementById('btnExportar').addEventListener('click', () => {
+  if (livros.length === 0) { toast('Acervo vazio — nada para exportar.', 'err'); return; }
+  const blob = new Blob([JSON.stringify(livros, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'acervo-biblioteca.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Acervo exportado!', 'ok');
+});
+document.getElementById('btnImportar').addEventListener('click', () => {
+  document.getElementById('fileImport').click();
+});
+document.getElementById('fileImport').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const arr = JSON.parse(reader.result);
+      if (!Array.isArray(arr)) throw new Error('arquivo inválido');
+      let add = 0, dup = 0;
+      for (const item of arr) {
+        try {
+          adicionarLivro(item);
+          add++;
+        } catch (err) {
+          if (String(err.message).includes('ISBN')) dup++; else throw err;
+        }
+      }
+      renderCatalogo();
+      toast('Importados ' + add + ' livro(s)' + (dup ? ' · ' + dup + ' duplicados ignorados' : ''), 'ok');
+    } catch (err) {
+      toast('Importação falhou: ' + err.message, 'err');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+/* ================= BUSCA NA API (Google Books + Open Library) ================= */
+const form = document.getElementById('form');
+const input = document.getElementById('q');
+const btn = document.getElementById('btn');
+const msg = document.getElementById('msg');
+const grid = document.getElementById('grid');
+const fonte = document.getElementById('fonte');
+
+function showMsg(text, isError) {
+  msg.textContent = text;
+  msg.className = 'msg' + (isError ? ' error' : '');
+  msg.style.display = '';
+  grid.style.display = 'none';
+  grid.innerHTML = '';
+  fonte.style.display = 'none';
+}
+
+async function buscarGoogleBooks(q, autor) {
+  let query = encodeURIComponent(q);
+  if (autor && autor.trim()) query += '+inauthor:' + encodeURIComponent(autor.trim());
+  const res = await fetch('https://www.googleapis.com/books/v1/volumes?q=' +
+    query + '&maxResults=20&langRestrict=pt');
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  return (data.items || []).map(it => {
+    const v = it.volumeInfo || {};
+    return {
+      titulo: v.title,
+      autor: (v.authors || []).join(', '),
+      editora: v.publisher,
+      ano: (v.publishedDate || '').slice(0, 4),
+      isbn: extraiIsbn(it),
+      paginas: v.pageCount,
+      capa: (v.imageLinks && v.imageLinks.thumbnail) || null,
+      descricao: v.description,
+      link: v.infoLink || null
+    };
+  });
+}
+function extraiIsbn(vol) {
+  const ids = (vol.volumeInfo && vol.volumeInfo.industryIdentifiers) || [];
+  const isbn13 = ids.find(i => i.type === 'ISBN_13');
+  const isbn10 = ids.find(i => i.type === 'ISBN_10');
+  return normIsbn((isbn13 || isbn10 || {}).identifier);
+}
+
+async function buscarOpenLibrary(q, autor) {
+  let url = 'https://openlibrary.org/search.json?q=' + encodeURIComponent(q) + '&limit=20';
+  if (autor && autor.trim()) url += '&author=' + encodeURIComponent(autor.trim());
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  return (data.docs || []).map(d => ({
+    titulo: d.title,
+    autor: (d.author_name || []).join(', '),
+    editora: (d.publisher || [])[0],
+    ano: d.first_publish_year,
+    isbn: normIsbn((d.isbn || [])[0]),
+    paginas: d.number_of_pages_median,
+    capa: d.cover_i ? 'https://covers.openlibrary.org/b/id/' + d.cover_i + '-M.jpg' : null,
+    descricao: d.first_sentence ? d.first_sentence[0] : (d.subtitle || ''),
+    link: d.key ? 'https://openlibrary.org' + d.key : null,
+    edition_count: d.edition_count
+  }));
+}
+
+async function buscarLivros(q, autor) {
+  const tentativas = [buscarGoogleBooks, buscarOpenLibrary];
+  const erros = [];
+  for (const api of tentativas) {
+    try {
+      const livrosApi = await api(q, autor);
+      return { livros: livrosApi, fonte: api === buscarGoogleBooks ? 'Google Books' : 'Open Library' };
+    } catch (e) {
+      erros.push((api === buscarGoogleBooks ? 'Google Books' : 'Open Library') + ' (' + e.message + ')');
+    }
+  }
+  throw new Error('Google Books e Open Library falharam: ' + erros.join(' · '));
+}
+
+function jaNoAcervo(livro) {
+  return livro.isbn ? livros.some(l => l.isbn === livro.isbn) : false;
+}
+
+function renderBusca(livrosApi) {
+  if (!livrosApi || livrosApi.length === 0) {
+    showMsg('Nenhum livro encontrado. Tente outro termo.');
+    return;
+  }
+  msg.style.display = 'none';
+  grid.innerHTML = '';
+  grid.style.display = '';
+
+  for (const b of livrosApi) {
+    const metaBits = [];
+    if (b.editora) metaBits.push(esc(b.editora));
+    if (b.ano) metaBits.push(esc(String(b.ano)));
+    if (b.paginas) metaBits.push(b.paginas + ' págs');
+    if (b.isbn) metaBits.push('ISBN ' + b.isbn);
+    const noAcervo = jaNoAcervo(b);
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<div class="thumb">' +
+        (b.capa
+          ? '<img src="' + esc(b.capa) + '" alt="Capa" loading="lazy" onerror="this.outerHTML=\'<div class=&quot;no-img&quot;>Sem capa</div>\'">'
+          : '<div class="no-img">Sem capa</div>') +
+      '</div>' +
+      '<div class="info">' +
+        '<div class="title">' + esc(b.titulo || 'Sem título') + '</div>' +
+        '<div class="author">' + esc(b.autor || 'Autor desconhecido') + '</div>' +
+        (metaBits.length ? '<div class="meta">' + metaBits.join(' · ') + '</div>' : '') +
+        '<div class="desc">' + esc(formatDesc(b.descricao)) + '</div>' +
+        (b.link ? '<a href="' + esc(b.link) + '" target="_blank" rel="noopener">Ver detalhes →</a>' : '') +
+        '<div class="card-actions">' +
+          '<button class="btn-small" data-add="' + esc(b.titulo) + '" data-idx="' + livrosApi.indexOf(b) + '" ' +
+            (noAcervo ? 'disabled' : '') + '>' + (noAcervo ? '✓ Já no acervo' : '➕ Adicionar ao acervo') + '</button>' +
+        '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  }
+}
+
+grid.addEventListener('click', (e) => {
+  const btnAdd = e.target.closest('button[data-add]');
+  if (!btnAdd) return;
+  const idx = Number(btnAdd.dataset.idx);
+  const ultimaBusca = grid._ultimaBusca || [];
+  const b = ultimaBusca[idx];
+  if (!b) return;
+  try {
+    adicionarLivro(b);
+    btnAdd.textContent = '✓ Já no acervo';
+    btnAdd.disabled = true;
+    toast('"' + b.titulo + '" adicionado ao acervo!', 'ok');
+  } catch (err) {
+    toast('Erro: ' + err.message, 'err');
+    renderBusca(ultimaBusca);
+  }
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const q = input.value.trim();
+  if (!q) { showMsg('Digite o nome de um livro.'); return; }
+
+  btn.disabled = true;
+  showMsg('Buscando…');
+
+  try {
+    const r = await buscarLivros(q);
+    fonte.textContent = 'Resultados de: ' + r.fonte;
+    fonte.style.display = '';
+    grid._ultimaBusca = r.livros;
+    renderBusca(r.livros);
+  } catch (err) {
+    showMsg('Não foi possível buscar: ' + err.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+/* ================= AUTO PREENCHER (via API) ================= */
+const btnAutoPreencher = document.getElementById('btnAutoPreencher');
+
+function escolherMelhorResultado(livrosApi, titulo, autor) {
+  const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+  const alvo = norm(titulo);
+  const alvoAutor = norm(autor);
+  if (!alvo) return livrosApi[0];
+
+  const freq = {};
+  for (const l of livrosApi) {
+    const a = norm(l.autor);
+    if (a) freq[a] = (freq[a] || 0) + 1;
+  }
+  let maxFreq = 0;
+  for (const k in freq) maxFreq = Math.max(maxFreq, freq[k]);
+  const autorDominante = maxFreq > 1 ? Object.keys(freq).find(k => freq[k] === maxFreq) : null;
+
+  const bateAutor = (l) => {
+    const na = norm(l.autor);
+    if (!na) return false;
+    if (na === alvoAutor) return true;
+    return alvoAutor.length > 2 && (na.includes(alvoAutor) || alvoAutor.includes(na));
+  };
+
+  let melhor = null;
+  let melhorPts = -1;
+  for (const l of livrosApi) {
+    const nt = norm(l.titulo);
+    let pts = 0;
+    if (nt === alvo) pts += 5;
+    else if (nt.includes(alvo) || alvo.includes(nt)) pts += 3;
+    if (autorDominante && norm(l.autor) === autorDominante) pts += 4;
+    if (alvoAutor && bateAutor(l)) pts += 5;
+    if (l.autor) pts += 1;
+    if (l.ano) pts += 1;
+    if (l.capa) pts += 1;
+    if (l.isbn) pts += 1;
+    pts += Math.min(l.edition_count || 0, 100) / 20;
+    if (pts > melhorPts) { melhorPts = pts; melhor = l; }
+  }
+  if (melhorPts <= 0) return null;
+  const sinais = (melhor.autor ? 1 : 0) + (melhor.ano ? 1 : 0) + (melhor.capa ? 1 : 0) +
+    (melhor.isbn ? 1 : 0) + ((melhor.edition_count || 0) > 1 ? 1 : 0);
+  const nt = norm(melhor.titulo);
+  const temMatchTitulo = (nt === alvo) || nt.includes(alvo) || alvo.includes(nt);
+  if (temMatchTitulo) {
+    if (sinais < 2) return null;
+    if (melhor.autor) return melhor;
+    const consolidado = livrosApi.find(l => l !== melhor && l.autor && (l.edition_count || 0) >= 10);
+    return consolidado || melhor;
+  }
+  const muitasEdicoes = (melhor.edition_count || 0) >= 10;
+  if (melhor.autor && muitasEdicoes) return melhor;
+  return null;
+}
+
+function aplicarAutopreenchimento(livro, fonte) {
+  const campos = {
+    fAutor: livro.autor, fEditora: livro.editora, fIsbn: livro.isbn,
+    fAno: livro.ano, fPaginas: livro.paginas, fCapa: livro.capa, fDesc: livro.descricao
+  };
+  let preenchidos = 0;
+  for (const [id, valor] of Object.entries(campos)) {
+    const el = document.getElementById(id);
+    if (valor && !el.value.trim()) { el.value = valor; preenchidos++; }
+  }
+  return preenchidos;
+}
+
+btnAutoPreencher.addEventListener('click', async () => {
+  const titulo = document.getElementById('fTitulo').value.trim();
+  if (!titulo) { toast('Digite o título primeiro.', 'err'); return; }
+  const autor = document.getElementById('fAutor').value.trim();
+
+  btnAutoPreencher.disabled = true;
+  btnAutoPreencher.textContent = '⏳ Buscando…';
+
+  try {
+    const r = await buscarLivros(titulo, autor);
+    if (!r.livros || r.livros.length === 0) throw new Error('nenhum resultado encontrado');
+    const melhor = escolherMelhorResultado(r.livros, titulo, autor);
+    if (!melhor) throw new Error('nenhum resultado confiável (' + r.fonte + '). Verifique o título ou preencha manualmente.');
+    const n = aplicarAutopreenchimento(melhor, r.fonte);
+    if (n === 0) toast('Nada a preencher: campos já estavam completos.', 'ok');
+    else toast('Auto preenchido (' + r.fonte + '): ' + n + ' campo(s) preenchido(s).', 'ok');
+  } catch (err) {
+    toast('Auto preencher falhou: ' + err.message, 'err');
+  } finally {
+    btnAutoPreencher.disabled = false;
+    btnAutoPreencher.textContent = '⚡ Auto preencher';
+  }
+});
+
+/* ================= INIT ================= */
+atualizarSugestoes();
+atualizarFiltrosDinamicos();
+renderCatalogo();
+
+/* ================= API PARA TESTES ================= */
+window.__TEST__ = {
+  adicionarLivro, editarLivro, excluirLivro, filtrarLivros, validarLivro,
+  getLivros: () => livros, getStorageKey: () => STORAGE_KEY,
+  normIsbn, sanitizar, switchTab, renderCatalogo, atualizarSugestoes, autopreencherPorTitulo,
+  obterListaCatalogo, atualizarFiltrosDinamicos,
+  buscarLivros, escolherMelhorResultado, aplicarAutopreenchimento
+};
+</script>
+</body>
+</html>
