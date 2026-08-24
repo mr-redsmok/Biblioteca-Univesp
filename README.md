@@ -56,20 +56,15 @@ Para visualizar o sistema, basta abrir o arquivo `index.html` diretamente no nav
 |--------|------------|
 | Frontend | HTML + CSS + JavaScript (arquivo único) |
 | Persistência | localStorage (navegador) |
+| (A definir DB)
 | Busca de livros | Google Books API + Open Library API |
 
-## Estrutura do projeto
+## Estrutura do projeto (Atual)
 
 ```
 biblioteca-univesp/
 ├── README.md
 └── index.html
 ```
-
-## Licença
-
-A definir.
-
----
 
 *Projeto Integrador — UNIVESP 2026*
