@@ -30,7 +30,7 @@ Esse projeto faz parte do **Projeto Integrador** do segundo semestre de 2026 da 
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/biblioteca-univesp.git
+git clone https://github.com/mr-redsmok/Biblioteca-Univesp
 cd biblioteca-univesp
 ```
 
