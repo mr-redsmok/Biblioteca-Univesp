@@ -54,9 +54,9 @@ Para visualizar o sistema, basta abrir o arquivo `index.html` diretamente no nav
 
 | Camada | Tecnologia |
 |--------|------------|
-| Frontend | HTML + CSS + JavaScript (arquivo único) |
+| Frontend | HTML + CSS + JavaScript |
 | Persistência | localStorage (navegador) |
-| (A definir DB)
+| Database | PostgreSQL |
 | Busca de livros | Google Books API + Open Library API |
 
 ## Estrutura do projeto (Atual)
