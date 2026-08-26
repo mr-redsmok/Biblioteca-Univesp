@@ -20,12 +20,16 @@ Esse projeto faz parte do **Projeto Integrador** do segundo semestre de 2026 da 
 | Tiago Luiz de Oliveira Carpinteiro | 24208627 |
 | Wesley Eduardo Maximiano Firmino | 24226877 |
 
+## Prévia do Projeto
+
+- **Demonstração ao vivo:** [Biblioteca - Sistema de Gestão](https://biblioteca-univesp-ten.vercel.app/)
+
+## Como rodar localmente
+
 ## Pré-requisitos
 
 - Navegador web atualizado (Chrome, Firefox, Edge)
 - Git
-
-## Como rodar
 
 ### 1. Clone o repositório
 
@@ -55,8 +59,7 @@ Para visualizar o sistema, basta abrir o arquivo `index.html` diretamente no nav
 | Camada | Tecnologia |
 |--------|------------|
 | Frontend | HTML + CSS + JavaScript |
-| Persistência | localStorage (navegador) |
-| Database | PostgreSQL |
+| Storage | Supabase (PostgreSQL)|
 | Busca de livros | Google Books API + Open Library API |
 
 ## Estrutura do projeto (Atual)
