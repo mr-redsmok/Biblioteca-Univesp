@@ -3,74 +3,31 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Sistema de Gestão de Biblioteca" />
         <title>Biblioteca — Sistema de Gestão</title>
         <link rel="stylesheet" href="css/styles.css" />
     </head>
     <body>
-        <div class="container">
-            <h1>📚 <span>Biblioteca</span> — Sistema de Gestão</h1>
-            <p class="sub">
-                Catálogo de livros com busca automática (Google Books + Open
-                Library). Protótipo.
-            </p>
+        <header class="header">
+            <div class="container">
+                <h1>📚<span> Biblioteca</span> — Sistema de Gestão</h1>
 
-            <nav class="tabs" role="tablist">
-                <button
-                    class="tab active"
-                    data-view="catalogo"
-                    role="tab"
-                    aria-selected="true"
-                >
-                    📖 Catálogo
-                </button>
-                <button
-                    class="tab"
-                    data-view="cadastrar"
-                    role="tab"
-                    aria-selected="false"
-                >
-                    ➕ Cadastrar
-                </button>
-                <button
-                    class="tab"
-                    data-view="buscar"
-                    role="tab"
-                    aria-selected="false"
-                >
-                    🔎 Buscar livro
-                </button>
-            </nav>
-
+                <nav class="tabs" role="tablist">
+                    <button class="tab active" data-view="catalogo" role="tab" aria-selected="true">📖 Catálogo</button>
+                    <button class="tab" data-view="cadastrar" role="tab" aria-selected="false">➕ Cadastrar</button>
+                    <button class="tab" data-view="buscar" role="tab" aria-selected="false">🔎 Buscar livro</button>
+                </nav>
+            </div>
+        </header>
+        <main class="main">
             <!-- ============ CATÁLOGO ============ -->
-            <section id="view-catalogo" class="view active">
+            <section id="view-catalogo" class="view active container">
                 <div class="toolbar">
-                    <input
-                        id="filtro"
-                        type="text"
-                        placeholder="Filtrar por título, autor, ISBN ou editora…"
-                        aria-label="Filtrar catálogo"
-                    />
+                    <input id="filtro" type="text" placeholder="Filtrar por título, autor, ISBN ou editora…" aria-label="Filtrar catálogo" />
                     <span id="count" class="count">0 livros</span>
-                    <button
-                        class="btn-ghost btn-small"
-                        id="btnExportar"
-                        type="button"
-                    >
-                        ⬇ Exportar
-                    </button>
-                    <button
-                        class="btn-ghost btn-small"
-                        id="btnImportar"
-                        type="button"
-                    >
-                        ⬆ Importar
-                    </button>
-                    <input
-                        id="fileImport"
-                        type="file"
-                        accept=".json"
-                        style="display: none"
-                    />
+                    <button class="btn-ghost btn-small" id="btnExportar" type="button">⬇ Exportar</button>
+                    <button class="btn-ghost btn-small" id="btnImportar" type="button">⬆ Importar</button>
+                    <input id="fileImport" type="file" accept=".json" style="display: none" />
                 </div>
                 <div class="filters-row">
                     <label
@@ -90,44 +47,27 @@
                     </label>
                     <label
                         >Editora
-                        <select
-                            id="filtroEditora"
-                            aria-label="Filtrar por editora"
-                        >
+                        <select id="filtroEditora" aria-label="Filtrar por editora">
                             <option value="">Todas</option>
                         </select>
                     </label>
-                    <label
-                        >Ano
-                        <input
-                            id="filtroAno"
-                            type="number"
-                            min="0"
-                            max="2100"
-                            placeholder="Ex.: 1999"
-                            aria-label="Filtrar por ano"
-                        />
+                    <label>
+                        <span>Ano</span>
+                        <input id="filtroAno" type="number" min="0" max="2100" placeholder="Ex.: 1999" aria-label="Filtrar por ano" />
                     </label>
                 </div>
-                <div id="msgCatalogo" class="msg">
-                    Nenhum livro no acervo ainda. Cadastre ou busque livros.
-                </div>
+                <div id="msgCatalogo" class="msg">Nenhum livro no acervo ainda. Cadastre ou busque livros.</div>
                 <div id="gridCatalogo" class="grid" style="display: none"></div>
             </section>
 
             <!-- ============ CADASTRAR ============ -->
-            <section id="view-cadastrar" class="view">
+            <section id="view-cadastrar" class="view container">
                 <form id="formLivro" class="form" novalidate>
                     <input type="hidden" id="fId" />
                     <div class="field">
-                        <label for="fTitulo"
-                            >Título <span class="req">*</span></label
-                        >
+                        <label for="fTitulo"> Título<span class="req"> *</span> </label>
                         <input id="fTitulo" required list="sug-titulo" />
-                        <div class="hint">
-                            Sugestões do acervo ou clique em "Auto preencher"
-                            para buscar os dados na internet pelo título.
-                        </div>
+                        <div class="hint">Sugestões do acervo ou clique em "Auto preencher" para buscar os dados na internet pelo título.</div>
                     </div>
                     <div class="row">
                         <div class="field">
@@ -142,41 +82,21 @@
                     <div class="row">
                         <div class="field">
                             <label for="fIsbn">ISBN</label>
-                            <input
-                                id="fIsbn"
-                                placeholder="Ex.: 9788535902778"
-                                list="sug-isbn"
-                            />
+                            <input id="fIsbn" placeholder="Ex.: 9788535902778" list="sug-isbn" />
                         </div>
                         <div class="field">
                             <label for="fAno">Ano de publicação</label>
-                            <input
-                                id="fAno"
-                                type="number"
-                                min="0"
-                                max="2100"
-                                placeholder="Ex.: 1999"
-                            />
+                            <input id="fAno" type="number" min="0" max="2100" placeholder="Ex.: 1999" />
                         </div>
                     </div>
                     <div class="row">
                         <div class="field">
                             <label for="fPaginas">Páginas</label>
-                            <input
-                                id="fPaginas"
-                                type="number"
-                                min="1"
-                                placeholder="Ex.: 256"
-                            />
+                            <input id="fPaginas" type="number" min="1" placeholder="Ex.: 256" />
                         </div>
                         <div class="field">
                             <label for="fExemplares">Nº de exemplares</label>
-                            <input
-                                id="fExemplares"
-                                type="number"
-                                min="1"
-                                value="1"
-                            />
+                            <input id="fExemplares" type="number" min="1" value="1" />
                         </div>
                     </div>
                     <div class="field">
@@ -185,37 +105,14 @@
                     </div>
                     <div class="field">
                         <label for="fDesc">Descrição</label>
-                        <textarea
-                            id="fDesc"
-                            placeholder="Resumo / sinopse…"
-                        ></textarea>
+                        <textarea id="fDesc" placeholder="Resumo / sinopse…"></textarea>
                     </div>
                     <div class="btn-group">
-                        <button
-                            type="button"
-                            class="btn-ghost"
-                            id="btnAutoPreencher"
-                        >
-                            ⚡ Auto preencher
-                        </button>
-                        <button type="submit" id="btnSalvar">
-                            💾 Salvar livro
-                        </button>
-                        <button type="button" class="btn-ghost" id="btnLimpar">
-                            Limpar
-                        </button>
+                        <button type="button" class="btn-ghost" id="btnAutoPreencher">⚡ Auto preencher</button>
+                        <button type="submit" id="btnSalvar">💾 Salvar livro</button>
+                        <button type="button" class="btn-ghost" id="btnLimpar">Limpar</button>
                         <span class="spacer"></span>
-                        <a
-                            href="#"
-                            id="linkCancelarEdit"
-                            class="btn-ghost"
-                            style="
-                                display: none;
-                                text-decoration: none;
-                                align-self: center;
-                            "
-                            >Cancelar edição</a
-                        >
+                        <a href="#" id="linkCancelarEdit" class="btn-ghost" style="display: none; text-decoration: none; align-self: center"> Cancelar edição </a>
                     </div>
                 </form>
                 <datalist id="sug-titulo"></datalist>
@@ -225,35 +122,31 @@
             </section>
 
             <!-- ============ BUSCAR (API) ============ -->
-            <section id="view-buscar" class="view">
+            <section id="view-buscar" class="view container">
                 <form id="form" class="search-bar">
-                    <input
-                        id="q"
-                        type="text"
-                        placeholder="Digite o nome de um livro, autor ou assunto…"
-                    />
+                    <input id="q" type="text" placeholder="Digite o nome de um livro, autor ou assunto…" />
                     <button id="btn" type="submit">Buscar</button>
                 </form>
                 <div id="msg" class="msg">Digite algo acima para buscar.</div>
                 <div id="fonte" class="fonte" style="display: none"></div>
                 <div id="grid" class="grid" style="display: none"></div>
             </section>
-        </div>
 
-        <div id="modal" class="modal-bg" role="dialog" aria-modal="true">
-            <div class="modal">
-                <h3 id="modalTitulo">Excluir livro</h3>
-                <p id="modalTexto">Tem certeza?</p>
-                <div class="btn-group">
-                    <button class="btn-danger" id="btnConfirmar">
-                        Excluir
-                    </button>
-                    <button class="btn-ghost" id="btnCancelar">Cancelar</button>
+            <div id="modal" class="modal-bg" role="dialog" aria-modal="true">
+                <div class="modal">
+                    <h3 id="modalTitulo">Excluir livro</h3>
+                    <p id="modalTexto">Tem certeza?</p>
+                    <div class="btn-group">
+                        <button class="btn-danger" id="btnConfirmar">Excluir</button>
+                        <button class="btn-ghost" id="btnCancelar">Cancelar</button>
+                    </div>
                 </div>
             </div>
-        </div>
-
+        </main>
         <div id="toast"></div>
-        <script src="js/script.js" defer></script>
+        <footer class="container footer">
+            <p class="footer_text">&copy; 2026 Sistema de Gestão de Biblioteca. Todos direitos reservados.</p>
+        </footer>
+        <script src="js/script.js"></script>
     </body>
 </html>
