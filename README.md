@@ -63,8 +63,10 @@ Para visualizar o sistema, basta abrir o arquivo `index.html` diretamente no nav
 
 ```
 biblioteca-univesp/
-├── README.md
-└── index.html
+|-- css/
+|-- js/
+|-- README.md
+\-- index.html
 ```
 
 *Projeto Integrador — UNIVESP 2026*
