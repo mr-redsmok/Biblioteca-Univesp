@@ -2,7 +2,11 @@
 
 ![UNIVESP](https://img.shields.io/badge/UNIVESP-Computação-blue)
 ![HTML](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat&logo=supabase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat&logo=vercel&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white)
 
 ## Descrição
 
@@ -26,7 +30,7 @@ Esse projeto faz parte do **Projeto Integrador** do segundo semestre de 2026 da 
 
 ## Como rodar localmente
 
-## Pré-requisitos
+### Pré-requisitos
 
 - Navegador web atualizado (Chrome, Firefox, Edge)
 - Git
@@ -40,7 +44,11 @@ cd biblioteca-univesp
 
 ### 2. Abra o projeto
 
-Para visualizar o sistema, basta abrir o arquivo `index.html` diretamente no navegador.
+Para visualizar o projeto, escolha uma das opções abaixo:
+
+- Online: Acesse diretamente pelo link https://biblioteca-univesp-ten.vercel.app/
+
+- Localmente: Utilize a extensão Live Server ou rode o comando '\python3 -m http.server'no seu terminal.
 
 ## Funcionalidades
 
@@ -59,7 +67,8 @@ Para visualizar o sistema, basta abrir o arquivo `index.html` diretamente no nav
 | Camada | Tecnologia |
 |--------|------------|
 | Frontend | HTML + CSS + JavaScript |
-| Storage | Supabase (PostgreSQL)|
+| Persistência | localStorage (navegador) |
+| Storage | PostgreSQL (Supabase)|
 | Busca de livros | Google Books API + Open Library API |
 
 ## Estrutura do projeto (Atual)
