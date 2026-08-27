@@ -48,7 +48,7 @@ Para visualizar o projeto, escolha uma das opções abaixo:
 
 - Online: Acesse diretamente pelo link https://biblioteca-univesp-ten.vercel.app/
 
-- Localmente: Utilize a extensão Live Server ou rode o comando '\python3 -m http.server'no seu terminal.
+- Localmente: Utilize a extensão Live Server ou rode o comando '\python3 -m http.server' no seu terminal.
 
 ## Funcionalidades
 
