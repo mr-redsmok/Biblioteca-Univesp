@@ -66,10 +66,35 @@ Para visualizar o sistema, basta abrir o arquivo `index.html` diretamente no nav
 
 ```
 biblioteca-univesp/
-|-- css/
-|-- js/
-|-- README.md
-\-- index.html
+├── css/
+│   ├── styles.css        (importa todos os componentes abaixo, via @import)
+│   ├── base.css          (variáveis, reset, body, container, input global)
+│   ├── header.css        (cabeçalho e abas de navegação)
+│   ├── buttons.css       (botões e variações: ghost, danger, small, group)
+│   ├── form.css          (formulário de cadastro)
+│   ├── cards.css         (cards compartilhados: catálogo e busca)
+│   ├── catalog.css       (toolbar e filtros do catálogo)
+│   ├── search.css        (barra de busca e mensagens)
+│   ├── modal.css         (modal de confirmação)
+│   ├── toast.css         (notificações)
+│   └── footer.css        (rodapé)
+├── js/
+│   ├── main.js           (ponto de entrada: init e wiring)
+│   ├── utils.js          (helpers: esc, normIsbn, toast, newId, formatDesc)
+│   ├── storage.js        (estado do acervo e persistência)
+│   ├── validate.js       (validação e sanitização)
+│   ├── crud.js           (operações de acervo: adicionar/editar/excluir/filtrar)
+│   ├── api.js            (Google Books + Open Library)
+│   ├── autofill.js       (auto-preenchimento por heurística)
+│   └── ui/
+│       ├── catalog.js    (render do catálogo e ações)
+│       ├── form.js       (formulário e edição)
+│       ├── search.js     (busca na API)
+│       ├── tabs.js       (alternância de abas)
+│       ├── modal.js      (confirmação de exclusão)
+│       └── io.js         (exportar / importar)
+├── index.html
+└── README.md
 ```
 
 *Projeto Integrador — UNIVESP 2026*
