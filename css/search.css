@@ -1,0 +1,28 @@
+/* ---------- busca da API ---------- */
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.search-bar input {
+    flex: 1;
+}
+
+/* ---------- mensagens ---------- */
+.msg {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 0;
+}
+
+.msg.error {
+    color: var(--err);
+}
+
+.fonte {
+    text-align: center;
+    color: var(--accent);
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+}

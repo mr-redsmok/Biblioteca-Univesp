@@ -1,0 +1,113 @@
+/* ---------- cards ---------- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+}
+
+.thumb {
+    background: #1d2129;
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.thumb img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.thumb .no-img {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.info {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.author {
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+.meta {
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+
+.desc {
+    font-size: 0.85rem;
+    color: #c3c7cc;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.badge {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.badge.ok {
+    background: rgba(61, 220, 132, 0.15);
+    color: var(--ok);
+}
+
+.badge.warn {
+    background: rgba(255, 176, 32, 0.15);
+    color: var(--warn);
+}
+
+.badge.err {
+    background: rgba(255, 107, 107, 0.15);
+    color: var(--err);
+}
+
+.card a,
+.card-actions a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.card a:hover {
+    text-decoration: underline;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}

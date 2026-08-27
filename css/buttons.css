@@ -1,0 +1,67 @@
+button {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 10px;
+    color: #0b0e14;
+    font-weight: 700;
+    font-size: 0.98rem;
+    padding: 12px 22px;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.1s;
+    font-family: inherit;
+}
+
+button:hover {
+    filter: brightness(1.12);
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+.btn-ghost {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    filter: none;
+}
+
+.btn-danger {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--err);
+    font-weight: 600;
+}
+
+.btn-danger:hover {
+    border-color: var(--err);
+    background: rgba(255, 107, 107, 0.08);
+    filter: none;
+}
+
+.btn-small {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.btn-group .spacer {
+    flex: 1;
+}

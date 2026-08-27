@@ -1,0 +1,11 @@
+.footer {
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+    margin-bottom: 20px;
+}
+
+.footer_text {
+    color: var(--muted);
+    text-align: center;
+}
