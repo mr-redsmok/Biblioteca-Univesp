@@ -1,6 +1,6 @@
 /* ================= RENDER: catálogo ================= */
 import { livros } from '../storage.js';
-import { obterListaCatalogo, excluirLivro } from '../crud.js';
+import { filtrarECatalogo, excluirLivro } from '../crud.js';
 import { esc, formatDesc } from '../utils.js';
 import { preencherForm } from './form.js';
 import { switchTab } from './tabs.js';
@@ -12,7 +12,14 @@ const filtro = document.getElementById('filtro');
 const countEl = document.getElementById('count');
 
 export function renderCatalogo() {
-    const lista = obterListaCatalogo();
+    const criterios = {
+        termo: (document.getElementById('filtro').value || '').trim(),
+        autor: (document.getElementById('filtroAutor').value || '').trim(),
+        editora: (document.getElementById('filtroEditora').value || '').trim(),
+        ano: (document.getElementById('filtroAno').value || '').trim(),
+        ordem: document.getElementById('filtroOrdem').value
+    };
+    const lista = filtrarECatalogo(livros, criterios);
     countEl.textContent = livros.length + (lista.length !== livros.length ? ' · ' + lista.length + ' filtrados' : '') + ' livro(s)';
     if (livros.length === 0) {
         msgCatalogo.style.display = '';

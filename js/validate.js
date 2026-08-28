@@ -11,7 +11,7 @@ export function validarLivro(d) {
     if (d.paginas && (!Number.isInteger(paginas) || paginas < 1)) erros.push('páginas inválidas');
     const exemplares = Number(d.exemplares || 1);
     if (!Number.isInteger(exemplares) || exemplares < 1) erros.push('exemplares deve ser ≥ 1');
-    if (d.isbn) {
+    if (d.isbn && d.isbn.trim()) {
         const n = normIsbn(d.isbn);
         if (n.length < 10) erros.push('ISBN inválido (mínimo 10 dígitos)');
     }

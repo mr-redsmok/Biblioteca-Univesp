@@ -29,34 +29,23 @@ export function excluirLivro(id) {
     if (livros.length === antes) throw new Error('Livro não encontrado');
     save();
 }
-export function filtrarLivros(termo) {
-    const t = (termo || '').trim().toLowerCase();
-    if (!t) return livros;
-    return livros.filter(l =>
-        l.titulo.toLowerCase().includes(t) ||
-        l.autor.toLowerCase().includes(t) ||
-        l.editora.toLowerCase().includes(t) ||
-        l.isbn.includes(t)
-    );
-}
+export function filtrarECatalogo(livros, criterios = {}) {
+    const termo = (criterios.termo || '').trim().toLowerCase();
+    const autor = (criterios.autor || '').trim().toLowerCase();
+    const editora = (criterios.editora || '').trim().toLowerCase();
+    const ano = String(criterios.ano || '').trim();
+    const ordem = criterios.ordem || '';
 
-export function obterListaCatalogo() {
-    const termo = (document.getElementById('filtro').value || '').toLowerCase();
-    const autor = (document.getElementById('filtroAutor').value || '').toLowerCase();
-    const editora = (document.getElementById('filtroEditora').value || '').toLowerCase();
-    const ano = String(document.getElementById('filtroAno').value || '').trim();
-    const ordem = document.getElementById('filtroOrdem').value;
-
-    let lista = livros.filter(l =>
-        (!termo ||
-            l.titulo.toLowerCase().includes(termo) ||
-            l.autor.toLowerCase().includes(termo) ||
-            l.editora.toLowerCase().includes(termo) ||
-            l.isbn.includes(termo)) &&
-        (!autor || l.autor.toLowerCase().includes(autor)) &&
-        (!editora || l.editora.toLowerCase().includes(editora)) &&
-        (!ano || String(l.ano) === ano)
-    );
+    const lista = livros.filter(l => {
+        const titulo = (l.titulo || '').toLowerCase();
+        const aut = (l.autor || '').toLowerCase();
+        const edi = (l.editora || '').toLowerCase();
+        const isb = (l.isbn || '');
+        return (!termo || titulo.includes(termo) || aut.includes(termo) || edi.includes(termo) || isb.includes(termo)) &&
+            (!autor || aut.includes(autor)) &&
+            (!editora || edi.includes(editora)) &&
+            (!ano || String(l.ano || '') === ano);
+    });
 
     const pt = (a, b) => (a || '').localeCompare(b || '', 'pt', { sensitivity: 'base' });
     if (ordem === 'titulo-az') lista.sort((a, b) => pt(a.titulo, b.titulo));
@@ -65,4 +54,8 @@ export function obterListaCatalogo() {
     else if (ordem === 'ano-asc') lista.sort((a, b) => (a.ano || 0) - (b.ano || 0));
 
     return lista;
+}
+
+export function filtrarLivros(termo) {
+    return filtrarECatalogo(livros, { termo });
 }

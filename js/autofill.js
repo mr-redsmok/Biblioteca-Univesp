@@ -1,9 +1,21 @@
 /* ================= AUTO PREENCHER (via API) ================= */
-export function escolherMelhorResultado(livrosApi, titulo, autor) {
+import { normIsbn } from './utils.js';
+
+export function escolherMelhorResultado(livrosApi, titulo, autor, isbn) {
     const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
     const alvo = norm(titulo);
     const alvoAutor = norm(autor);
-    if (!alvo) return livrosApi[0];
+    const alvoIsbn = isbn ? normIsbn(isbn) : '';
+    if (alvoIsbn) {
+        const exato = livrosApi.find((l) => normIsbn(l.isbn) === alvoIsbn);
+        if (exato) return exato;
+    }
+    if (!alvo) {
+        const completude = (l) => [l.titulo, l.autor, l.editora, l.isbn, l.ano, l.paginas, l.capa, l.descricao]
+            .filter((x) => x && String(x).trim()).length;
+        const pt = (l) => (l.idioma === 'pt' || l.idioma === 'por') ? 1 : 0;
+        return livrosApi.slice().sort((a, b) => (pt(b) - pt(a)) || (completude(b) - completude(a)))[0];
+    }
 
     const freq = {};
     for (const l of livrosApi) {
@@ -34,20 +46,17 @@ export function escolherMelhorResultado(livrosApi, titulo, autor) {
         if (l.ano) pts += 1;
         if (l.capa) pts += 1;
         if (l.isbn) pts += 1;
+        const idi = String(l.idioma || '').toLowerCase();
+        if (idi === 'por' || idi.startsWith('pt')) pts += 100;
+        else if (idi) pts -= 40;
+        if (l.descricao) pts += 2;
         pts += Math.min(l.edition_count || 0, 100) / 20;
         if (pts > melhorPts) { melhorPts = pts; melhor = l; }
     }
     if (melhorPts <= 0) return null;
-    const sinais = (melhor.autor ? 1 : 0) + (melhor.ano ? 1 : 0) + (melhor.capa ? 1 : 0) +
-        (melhor.isbn ? 1 : 0) + ((melhor.edition_count || 0) > 1 ? 1 : 0);
     const nt = norm(melhor.titulo);
     const temMatchTitulo = (nt === alvo) || nt.includes(alvo) || alvo.includes(nt);
-    if (temMatchTitulo) {
-        if (sinais < 2) return null;
-        if (melhor.autor) return melhor;
-        const consolidado = livrosApi.find(l => l !== melhor && l.autor && (l.edition_count || 0) >= 10);
-        return consolidado || melhor;
-    }
+    if (temMatchTitulo) return melhor;
     const muitasEdicoes = (melhor.edition_count || 0) >= 10;
     if (melhor.autor && muitasEdicoes) return melhor;
     return null;
@@ -55,6 +64,7 @@ export function escolherMelhorResultado(livrosApi, titulo, autor) {
 
 export function aplicarAutopreenchimento(livro, fonte) {
     const campos = {
+        fTitulo: livro.titulo,
         fAutor: livro.autor, fEditora: livro.editora, fIsbn: livro.isbn,
         fAno: livro.ano, fPaginas: livro.paginas, fCapa: livro.capa, fDesc: livro.descricao
     };

@@ -1,7 +1,9 @@
 /* ================= RENDER: busca (API) ================= */
-import { esc, formatDesc, toast } from '../utils.js';
-import { jaNoAcervo, buscarLivros } from '../api.js';
-import { adicionarLivro } from '../crud.js';
+import { esc, formatDesc, toast, normIsbn } from '../utils.js';
+import { buscarLivros } from '../api.js';
+import { livros } from '../storage.js';
+import { preencherForm } from './form.js';
+import { switchTab } from './tabs.js';
 
 const form = document.getElementById('form');
 const input = document.getElementById('q');
@@ -34,7 +36,6 @@ export function renderBusca(livrosApi) {
         if (b.ano) metaBits.push(esc(String(b.ano)));
         if (b.paginas) metaBits.push(b.paginas + ' págs');
         if (b.isbn) metaBits.push('ISBN ' + b.isbn);
-        const noAcervo = jaNoAcervo(b);
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -51,8 +52,7 @@ export function renderBusca(livrosApi) {
             '<div class="desc">' + esc(formatDesc(b.descricao)) + '</div>' +
             (b.link ? '<a href="' + esc(b.link) + '" target="_blank" rel="noopener">Ver detalhes →</a>' : '') +
             '<div class="card-actions">' +
-            '<button class="btn-small" data-add="' + esc(b.titulo) + '" data-idx="' + livrosApi.indexOf(b) + '" ' +
-            (noAcervo ? 'disabled' : '') + '>' + (noAcervo ? '✓ Já no acervo' : '➕ Adicionar ao acervo') + '</button>' +
+            '<button class="btn-small" data-add="' + esc(b.titulo) + '" data-idx="' + livrosApi.indexOf(b) + '">➕ Pré-cadastro</button>' +
             '</div>' +
             '</div>';
         grid.appendChild(card);
@@ -66,15 +66,12 @@ grid.addEventListener('click', (e) => {
     const ultimaBusca = grid._ultimaBusca || [];
     const b = ultimaBusca[idx];
     if (!b) return;
-    try {
-        adicionarLivro(b);
-        btnAdd.textContent = '✓ Já no acervo';
-        btnAdd.disabled = true;
-        toast('"' + b.titulo + '" adicionado ao acervo!', 'ok');
-    } catch (err) {
-        toast('Erro: ' + err.message, 'err');
-        renderBusca(ultimaBusca);
-    }
+    const existente = b.isbn
+        ? livros.find(l => l.isbn && normIsbn(l.isbn) === normIsbn(b.isbn))
+        : livros.find(l => l.titulo && l.titulo.trim().toLowerCase() === (b.titulo || '').trim().toLowerCase());
+    preencherForm(existente || b);
+    switchTab('cadastrar');
+    toast(existente ? 'Livro já no acervo: aberto para edição.' : 'Pré-cadastro: revise os dados e clique em "Salvar livro".', 'ok');
 });
 
 form.addEventListener('submit', async (e) => {
