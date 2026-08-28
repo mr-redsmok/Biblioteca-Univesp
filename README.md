@@ -48,7 +48,9 @@ Para visualizar o projeto, escolha uma das opções abaixo:
 
 - Online: Acesse diretamente pelo link https://biblioteca-univesp-ten.vercel.app/
 
-- Localmente: Utilize a extensão Live Server ou rode o comando '\python3 -m http.server' no seu terminal.
+- Localmente: Utilize a extensão Live Server ou rode o comando python -m http.server 8000 no seu terminal.
+
+- Acesse pelo navegador: http://localhost:8000
 
 ## Funcionalidades
 
@@ -67,8 +69,10 @@ Para visualizar o projeto, escolha uma das opções abaixo:
 | Camada | Tecnologia |
 |--------|------------|
 | Frontend | HTML + CSS + JavaScript |
-| Persistência | localStorage (navegador) |
-| Storage | PostgreSQL (Supabase)|
+| Persistência atual | localStorage (navegador) |
+| Banco de dados | PostgreSQL (Supabase) - em emplementação|
+| Hospedagem | Versel 
+| Versionamento | Git 
 | Busca de livros | Google Books API + Open Library API |
 
 ## Estrutura do projeto (Atual)
@@ -105,5 +109,13 @@ biblioteca-univesp/
 ├── index.html
 └── README.md
 ```
+
+
+Próximas Implementações
+- Integração com Supabase
+- Migração da persistência de dados do localStorage para PostgreSQL
+- Persistência centralizada dos dados
+- Melhorias na sincronização do acervo
+
 
 *Projeto Integrador — UNIVESP 2026*
