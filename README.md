@@ -70,7 +70,7 @@ Para visualizar o projeto, escolha uma das opções abaixo:
 |--------|------------|
 | Frontend | HTML + CSS + JavaScript |
 | Persistência atual | localStorage (navegador) |
-| Banco de dados | PostgreSQL (Supabase) - em emplementação|
+| Banco de dados | PostgreSQL (Supabase) - em implementação|
 | Hospedagem | Versel 
 | Versionamento | Git 
 | Busca de livros | Google Books API + Open Library API |
