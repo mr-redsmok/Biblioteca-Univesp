@@ -1,0 +1,54 @@
+[
+  {
+    "titulo": "Os gregos, os historiadores, a democracia: o grande desvio",
+    "autor": "Pierre Vidal-Naquet",
+    "editora": "Companhia das Letras",
+    "ano": "2002",
+    "isbn": "9788535902556",
+    "paginas": "360",
+    "capa": "https://covers.openlibrary.org/b/isbn/9788535902556-M.jpg",
+    "descricao": "As transformações do conceito de democracia, em ensaios que focalizam o mito de Atlântida, a Revolução Francesa e as memórias do general grego Macriyannis. Vidal-Naquet utiliza a noção de grande desvio para mostrar como a concepção grega de democracia vem sendo reinterpretada.",
+    "idioma": "por",
+    "link": "https://www.companhiadasletras.com.br/livro/9788535902556/os-gregos",
+    "fonte": "Seed Local"
+  },
+  {
+    "titulo": "Dom Casmurro",
+    "autor": "Machado de Assis",
+    "editora": "Companhia das Letras",
+    "ano": "1899",
+    "isbn": "9788535910669",
+    "paginas": "256",
+    "capa": "https://covers.openlibrary.org/b/id/647501-M.jpg",
+    "descricao": "Bentinho e Capitu, o ciúme e a dúvida que atravessam o clássico de Machado de Assis.",
+    "idioma": "por",
+    "link": "https://openlibrary.org/works/OL1003040W",
+    "fonte": "Seed Local"
+  },
+  {
+    "titulo": "Harry Potter e a Pedra Filosofal",
+    "autor": "J.K. Rowling",
+    "editora": "Rocco",
+    "ano": "2000",
+    "isbn": "9788532530783",
+    "paginas": "264",
+    "capa": "https://covers.openlibrary.org/b/isbn/9788532530783-M.jpg",
+    "descricao": "Harry Potter descobre que é um bruxo e vai para Hogwarts.",
+    "idioma": "por",
+    "link": "https://openlibrary.org/works/OL14903887W",
+    "fonte": "Seed Local"
+  },
+  {
+    "titulo": "O Pequeno Príncipe",
+    "autor": "Antoine de Saint-Exupéry",
+    "editora": "Agir",
+    "ano": "2015",
+    "isbn": "9788522031484",
+    "paginas": "96",
+    "capa": "https://covers.openlibrary.org/b/isbn/9788522031484-M.jpg",
+    "descricao": "Um piloto cai no deserto e encontra um pequeno príncipe de um asteroide.",
+    "idioma": "por",
+    "link": "https://openlibrary.org/works/OL156800W",
+    "fonte": "Seed Local"
+  }
+]
