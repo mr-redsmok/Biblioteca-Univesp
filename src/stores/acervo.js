@@ -63,8 +63,9 @@ export const useAcervoStore = defineStore('acervo', () => {
   }
 
   async function carregar() {
+    const cacheLocal = load()
     if (!isSupabaseConfigured()) {
-      livros.value = load()
+      livros.value = cacheLocal
       origem.value = 'local'
       return livros.value
     }
@@ -72,7 +73,16 @@ export const useAcervoStore = defineStore('acervo', () => {
     try {
       const { data, error } = await supabase.from('livro').select('*').order('titulo')
       if (error) throw error
-      livros.value = (data || []).map(fromSupabase)
+      const doBanco = (data || []).map(fromSupabase)
+      if (doBanco.length === 0 && cacheLocal.length > 0) {
+        // Banco vazio mas há cache local (ex.: antes da migração):
+        // NÃO apaga o cache. Mantém local até o usuário cadastrar/migrar.
+        console.warn('[acervo] Supabase vazio, mantendo ' + cacheLocal.length + ' livro(s) do cache local.')
+        livros.value = cacheLocal
+        origem.value = 'local'
+        return livros.value
+      }
+      livros.value = doBanco
       origem.value = 'supabase'
       try {
         save()
@@ -81,7 +91,7 @@ export const useAcervoStore = defineStore('acervo', () => {
       }
     } catch (e) {
       console.warn('[acervo] Supabase indisponível, usando cache local:', e?.message || e)
-      livros.value = load()
+      livros.value = cacheLocal
       origem.value = 'local'
     } finally {
       carregando.value = false
@@ -177,7 +187,9 @@ export const useAcervoStore = defineStore('acervo', () => {
     livro.exemplares = novaQtd
 
     if (isSupabaseConfigured()) {
-      const { error } = await supabase.from('livro').update(toSupabase(livro)).eq('id', id)
+      const payload = toSupabase(livro)
+      delete payload.id
+      const { error } = await supabase.from('livro').update(payload).eq('id', id)
       if (error) {
         if (isIsbnDuplicadoErro(error)) throw new Error('ISBN já cadastrado em outro livro')
         throw new Error('Supabase: ' + error.message)

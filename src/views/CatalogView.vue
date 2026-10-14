@@ -3,6 +3,7 @@
     <div class="toolbar">
       <input v-model="acervo.filtroTexto" type="text" placeholder="Filtrar por título, autor, ISBN, editora ou tombo…" aria-label="Filtrar catálogo" />
       <span class="count">{{ countText }}</span>
+      <span class="count" :title="origemTitle">{{ origemText }}</span>
     </div>
 
     <FiltersBar />
@@ -32,6 +33,14 @@ const countText = computed(() => {
   const filtrados = acervo.livrosFiltrados.length
   return total + (filtrados !== total ? ' · ' + filtrados + ' filtrados' : '') + ' livro(s)'
 })
+
+const origemText = computed(() => {
+  if (acervo.carregando) return '⏳ sincronizando…'
+  return acervo.origem === 'supabase' ? '☁️ nuvem' : '💾 local'
+})
+const origemTitle = computed(() => acervo.origem === 'supabase'
+  ? 'Dados vindos do Supabase'
+  : 'Supabase fora do ar/sem .env — usando cache local. Veja o console.') 
 
 function excluir(id) {
   abrirModalExcluir(id)
