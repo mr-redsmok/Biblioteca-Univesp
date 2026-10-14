@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import { validarLivro, sanitizar, isbnDuplicado } from '@/lib/validate.js'
 import { gerarTombo } from '@/lib/tombo.js'
 import { normIsbn, toast, newId } from '@/lib/utils.js'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase.js'
+import { toSupabase, fromSupabase, isIsbnDuplicadoErro } from '@/lib/mapper.js'
 
 const STORAGE_KEY = 'sgbl_livros'
 
@@ -23,6 +25,10 @@ function load() {
  * Exemplares hoje são só {id, tombo} com quantidade. Não há status individual
  * (disponivel/danificado/perdido). Remover 1 exemplar remove sempre o último.
  * Próxima fase: adicionar status por exemplar sem quebrar geração de tombo.
+ *
+ * NOTA Supabase (fase 1 — só tabela `livro`):
+ * estadoLivro/metodoAquisicao e exemplaresLista ficam só no cache local.
+ * O banco persiste id,titulo,autor,editora,isbn,ano,paginas,capa,descricao,exemplares.
  */
 function gerarExemplaresLista(qtd) {
   const lista = []
@@ -39,6 +45,8 @@ export const useAcervoStore = defineStore('acervo', () => {
   const filtroEditora = ref('')
   const filtroAno = ref('')
   const filtroOrdem = ref('titulo-az')
+  const carregando = ref(false)
+  const origem = ref('local')
 
   function save() {
     try {
@@ -52,6 +60,33 @@ export const useAcervoStore = defineStore('acervo', () => {
       console.error('[acervo] save falhou', e)
       throw new Error(msg)
     }
+  }
+
+  async function carregar() {
+    if (!isSupabaseConfigured()) {
+      livros.value = load()
+      origem.value = 'local'
+      return livros.value
+    }
+    carregando.value = true
+    try {
+      const { data, error } = await supabase.from('livro').select('*').order('titulo')
+      if (error) throw error
+      livros.value = (data || []).map(fromSupabase)
+      origem.value = 'supabase'
+      try {
+        save()
+      } catch {
+        // cache local opcional — ignora falha de quota aqui
+      }
+    } catch (e) {
+      console.warn('[acervo] Supabase indisponível, usando cache local:', e?.message || e)
+      livros.value = load()
+      origem.value = 'local'
+    } finally {
+      carregando.value = false
+    }
+    return livros.value
   }
 
   // Computed: sugestões para datalist (titulo, autor, editora, isbn)
@@ -94,7 +129,7 @@ export const useAcervoStore = defineStore('acervo', () => {
     return lista
   })
 
-  function adicionarLivro(dados) {
+  async function adicionarLivro(dados) {
     const v = validarLivro(dados)
     if (!v.ok) throw new Error(v.erros.join('; '))
     if (isbnDuplicado(normIsbn(dados.isbn), livros.value)) throw new Error('ISBN já cadastrado no acervo')
@@ -102,6 +137,15 @@ export const useAcervoStore = defineStore('acervo', () => {
     const qtd = Math.max(1, Number(dados.exemplares) || 1)
     livro.exemplaresLista = gerarExemplaresLista(qtd)
     livro.exemplares = qtd
+
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase.from('livro').insert(toSupabase(livro))
+      if (error) {
+        if (isIsbnDuplicadoErro(error)) throw new Error('ISBN já cadastrado no acervo')
+        throw new Error('Supabase: ' + error.message)
+      }
+    }
+
     livros.value.push(livro)
     try {
       save()
@@ -113,7 +157,7 @@ export const useAcervoStore = defineStore('acervo', () => {
     return livro
   }
 
-  function editarLivro(id, dados) {
+  async function editarLivro(id, dados) {
     const idx = livros.value.findIndex(l => l.id === id)
     if (idx === -1) throw new Error('Livro não encontrado')
     const v = validarLivro(dados)
@@ -131,6 +175,15 @@ export const useAcervoStore = defineStore('acervo', () => {
       livro.exemplaresLista = listaExistente.slice(0, novaQtd)
     }
     livro.exemplares = novaQtd
+
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase.from('livro').update(toSupabase(livro)).eq('id', id)
+      if (error) {
+        if (isIsbnDuplicadoErro(error)) throw new Error('ISBN já cadastrado em outro livro')
+        throw new Error('Supabase: ' + error.message)
+      }
+    }
+
     livros.value[idx] = livro
     try {
       save()
@@ -141,7 +194,11 @@ export const useAcervoStore = defineStore('acervo', () => {
     return livro
   }
 
-  function excluirLivro(id) {
+  async function excluirLivro(id) {
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase.from('livro').delete().eq('id', id)
+      if (error) throw new Error('Supabase: ' + error.message)
+    }
     const antes = livros.value.length
     const backup = [...livros.value]
     livros.value = livros.value.filter(l => l.id !== id)
@@ -158,13 +215,13 @@ export const useAcervoStore = defineStore('acervo', () => {
     return JSON.stringify(livros.value, null, 2)
   }
 
-  function importarJSON(arr) {
+  async function importarJSON(arr) {
     if (!Array.isArray(arr)) throw new Error('arquivo inválido')
     let add = 0, dup = 0
     const erros = []
     for (const item of arr) {
       try {
-        adicionarLivro(item)
+        await adicionarLivro(item)
         add++
       } catch (err) {
         if (String(err.message).includes('ISBN')) dup++
@@ -183,7 +240,8 @@ export const useAcervoStore = defineStore('acervo', () => {
     livros,
     filtroTexto, filtroAutor, filtroEditora, filtroAno, filtroOrdem,
     livrosFiltrados, sugestoes, autoresUnicos, editorasUnicas,
-    adicionarLivro, editarLivro, excluirLivro, save, load,
+    carregando, origem,
+    carregar, adicionarLivro, editarLivro, excluirLivro, save, load,
     exportarJSON, importarJSON, getLivroById,
     STORAGE_KEY
   }

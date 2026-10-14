@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { provide } from 'vue'
+import { onMounted, provide } from 'vue'
 import { useAcervoStore } from '@/stores/acervo.js'
 import { toast } from '@/lib/utils.js'
 import ConfirmModal from '@/components/ConfirmModal.vue'
@@ -41,10 +41,14 @@ import { useConfirmModal } from '@/composables/useConfirmModal.js'
 const acervo = useAcervoStore()
 const { modal, abrir: abrirModalExcluir, fechar } = useConfirmModal()
 
-function confirmarModal() {
+onMounted(() => {
+  acervo.carregar()
+})
+
+async function confirmarModal() {
   if (modal.id) {
     try {
-      acervo.excluirLivro(modal.id)
+      await acervo.excluirLivro(modal.id)
       toast('Livro excluído', 'ok')
     } catch (e) {
       toast('Erro: ' + e.message, 'err')

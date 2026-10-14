@@ -52,10 +52,10 @@ function importar(e) {
   const file = e.target.files[0]
   if (!file) return
   const reader = new FileReader()
-  reader.onload = () => {
+  reader.onload = async () => {
     try {
       const arr = JSON.parse(reader.result)
-      const res = acervo.importarJSON(arr)
+      const res = await acervo.importarJSON(arr)
       importResult.value = res
       const parts = [`${res.add} importado(s)`]
       if (res.dup) parts.push(`${res.dup} duplicado(s)`)

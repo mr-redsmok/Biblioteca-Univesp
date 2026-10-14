@@ -176,15 +176,15 @@ export function useLivroForm() {
     }
   }
 
-  function salvar() {
+  async function salvar() {
     const dados = { ...form }
     salvando.value = true
     try {
       if (editando.value) {
-        acervo.editarLivro(route.params.id, dados)
+        await acervo.editarLivro(route.params.id, dados)
         toast('Livro atualizado!', 'ok')
       } else {
-        acervo.adicionarLivro(dados)
+        await acervo.adicionarLivro(dados)
         toast('Livro adicionado ao acervo!', 'ok')
       }
       limpar()
