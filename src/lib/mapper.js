@@ -41,3 +41,16 @@ export function fromSupabase(row) {
 export function isIsbnDuplicadoErro(err) {
   return err?.code === '23505' || String(err?.message || '').toLowerCase().includes('isbn')
 }
+
+export function toExemplar(livroId, item, meta) {
+  return {
+    livro_id: livroId,
+    tombo: item.tombo,
+    status: 'disponivel',
+    estado_livro: meta.estadoLivro || null,
+    metodo_aquisicao: meta.metodoAquisicao || null
+  }
+}
+export function fromExemplar(row) {
+  return {id: row.id, tombo: row.tombo }
+}

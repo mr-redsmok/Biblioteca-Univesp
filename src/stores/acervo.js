@@ -4,7 +4,7 @@ import { validarLivro, sanitizar, isbnDuplicado } from '@/lib/validate.js'
 import { gerarTombo } from '@/lib/tombo.js'
 import { normIsbn, toast, newId } from '@/lib/utils.js'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase.js'
-import { toSupabase, fromSupabase, isIsbnDuplicadoErro } from '@/lib/mapper.js'
+import { toSupabase, fromSupabase, isIsbnDuplicadoErro, toExemplar, fromExemplar } from '@/lib/mapper.js'
 
 const STORAGE_KEY = 'sgbl_livros'
 
@@ -73,7 +73,21 @@ export const useAcervoStore = defineStore('acervo', () => {
     try {
       const { data, error } = await supabase.from('livro').select('*').order('titulo')
       if (error) throw error
-      const doBanco = (data || []).map(fromSupabase)
+      const { data: exData, error: exError } = await supabase.from('exemplares').select('*')
+      if (exError) throw exError
+      const porLivro = {}
+      for (const r of (exData || [])) (porLivro[r.livro_id] ??= []).push(r)
+      const doBanco = (data || []).map(row => {
+        const livro = fromSupabase(row)
+        const exs = (porLivro[row.id] || []).sort((a, b) =>
+          String(a.tombo || '').localeCompare(String(b.tombo || ''), 'pt'))
+        livro.exemplaresLista = exs.map(fromExemplar)
+        if (exs.length > 0) {
+          livro.estadoLivro = exs[0].estado_livro || ''
+          livro.metodoAquisicao = exs[0].metodo_aquisicao || ''
+        }
+        return livro
+      })
       if (doBanco.length === 0 && cacheLocal.length > 0) {
         // Banco vazio mas há cache local (ex.: antes da migração):
         // NÃO apaga o cache. Mantém local até o usuário cadastrar/migrar.
@@ -154,6 +168,12 @@ export const useAcervoStore = defineStore('acervo', () => {
         if (isIsbnDuplicadoErro(error)) throw new Error('ISBN já cadastrado no acervo')
         throw new Error('Supabase: ' + error.message)
       }
+      const linhas = livro.exemplaresLista.map(e => toExemplar(livro.id, e, livro))
+      const { error: errEx } = await supabase.from('exemplares').insert(linhas)
+      if (errEx) {
+        await supabase.from('livro').delete().eq('id', livro.id)
+        throw new Error('Supabase exemplares: ' + errEx.message)
+      }
     }
 
     livros.value.push(livro)
@@ -178,10 +198,13 @@ export const useAcervoStore = defineStore('acervo', () => {
     const backup = { ...antigo, exemplaresLista: [...(antigo.exemplaresLista||[])] }
     const novaQtd = Math.max(1, Number(dados.exemplares) || 1)
     const listaExistente = antigo.exemplaresLista || []
+    let novos = []
+    let removidos = []
     if (novaQtd > listaExistente.length) {
-      const novos = gerarExemplaresLista(novaQtd - listaExistente.length)
+      novos = gerarExemplaresLista(novaQtd - listaExistente.length)
       livro.exemplaresLista = [...listaExistente, ...novos]
     } else {
+      removidos = listaExistente.slice(novaQtd)
       livro.exemplaresLista = listaExistente.slice(0, novaQtd)
     }
     livro.exemplares = novaQtd
@@ -193,6 +216,20 @@ export const useAcervoStore = defineStore('acervo', () => {
       if (error) {
         if (isIsbnDuplicadoErro(error)) throw new Error('ISBN já cadastrado em outro livro')
         throw new Error('Supabase: ' + error.message)
+      }
+      if (novos.length > 0) {
+        const { error: errNovos } = await supabase
+          .from('exemplares')
+          .insert(novos.map(e => toExemplar(id, e, livro)))
+        if (errNovos) throw new Error('Supabase exemplares: ' + errNovos.message)
+      }
+      if (removidos.length > 0) {
+        const ids = removidos.map(e => e.id)
+        const { data: presos } = await supabase
+          .from('emprestimos').select('exemplar_id').in('exemplar_id', ids).eq('status', 'emprestado')
+        if (presos?.length) throw new Error('Há exemplar emprestado — devolva antes de reduzir')
+        const { error: errDel } = await supabase.from('exemplares').delete().in('id', ids)
+        if (errDel) throw new Error('Supabase exemplares: ' + errDel.message)
       }
     }
 
@@ -207,21 +244,29 @@ export const useAcervoStore = defineStore('acervo', () => {
   }
 
   async function excluirLivro(id) {
-    if (isSupabaseConfigured()) {
-      const { error } = await supabase.from('livro').delete().eq('id', id)
-      if (error) throw new Error('Supabase: ' + error.message)
-    }
-    const antes = livros.value.length
-    const backup = [...livros.value]
-    livros.value = livros.value.filter(l => l.id !== id)
-    if (livros.value.length === antes) throw new Error('Livro não encontrado')
-    try {
-      save()
-    } catch (e) {
-      livros.value = backup
-      throw e
-    }
+  const index = livros.value.findIndex(l => l.id === id)
+  if (index === -1) {
+    throw new Error('Livro não encontrado')
   }
+
+  if (isSupabaseConfigured()) {
+    const { error: errEx } = await supabase.from('exemplares').delete().eq('livro_id', id)
+    if (errEx) throw new Error('Supabase exemplares: ' + errEx.message)
+
+    const { error } = await supabase.from('livro').delete().eq('id', id)
+    if (error) throw new Error('Supabase livro: ' + error.message)
+  }
+
+  const backup = [...livros.value]
+  livros.value.splice(index, 1)
+
+  try {
+    save()
+  } catch (e) {
+    livros.value = backup
+    throw e
+  }
+}
 
   function exportarJSON() {
     return JSON.stringify(livros.value, null, 2)
