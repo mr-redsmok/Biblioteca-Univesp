@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import CatalogView from '@/views/CatalogView.vue'
 import FormView from '@/views/FormView.vue'
 import SearchView from '@/views/SearchView.vue'
+import AlunosView from '@/views/AlunosView.vue'
+import MatriculasView from '@/views/MatriculasView.vue'
 import ConfigView from '@/views/ConfigView.vue'
 
 const router = createRouter({
@@ -12,6 +14,8 @@ const router = createRouter({
     { path: '/cadastrar', name: 'cadastrar', component: FormView },
     { path: '/cadastrar/:id', name: 'editar', component: FormView, props: true },
     { path: '/buscar', name: 'buscar', component: SearchView },
+    { path: '/alunos', name: 'alunos', component: AlunosView },
+    { path: '/matriculas', name: 'matriculas', component: MatriculasView },
     { path: '/configuracoes', name: 'configuracoes', component: ConfigView }
   ]
 })
