@@ -3,7 +3,7 @@
     <h2 style="margin-bottom:16px">🎓 Alunos</h2>
 
     <div class="toolbar">
-      <input v-model="store.filtro" type="text" placeholder="Filtrar por nome, matrícula ou email…" aria-label="Filtrar alunos" />
+      <input v-model="store.filtro" type="text" placeholder="Filtrar por nome ou matrícula…" aria-label="Filtrar alunos" />
       <span class="count">{{ store.alunosFiltrados.length }} aluno(s) · {{ origemText }}</span>
     </div>
 
@@ -12,8 +12,7 @@
       <li v-for="a in store.alunosFiltrados" :key="a.id" class="linha">
         <div class="linha_info">
           <strong>{{ a.nome }}</strong>
-          <span class="hint">Matrícula: {{ a.matricula || '—' }}</span>
-          <span class="hint" v-if="a.email || a.telefone">{{ [a.email, a.telefone].filter(Boolean).join(' · ') }}</span>
+          <span class="hint">Matrícula: {{ a.matricula || '—' }} · {{ a.telefone || '—' }}</span>
         </div>
         <span class="selo" :class="a.ativo ? 'ok' : 'off'">{{ a.ativo ? '✅ Ativo' : '⛔ Inativo' }}</span>
         <div class="linha_acoes">

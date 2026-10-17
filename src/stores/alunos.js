@@ -21,7 +21,6 @@ function load() {
 export function validarAluno(d) {
   const erros = []
   if (!d.nome || !d.nome.trim()) erros.push('nome é obrigatório')
-  if (d.email && d.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email.trim())) erros.push('email inválido')
   return { ok: erros.length === 0, erros }
 }
 
@@ -76,8 +75,7 @@ export const useAlunosStore = defineStore('alunos', () => {
     if (termo) {
       lista = lista.filter(a =>
         (a.nome || '').toLowerCase().includes(termo) ||
-        (a.matricula || '').toLowerCase().includes(termo) ||
-        (a.email || '').toLowerCase().includes(termo))
+        (a.matricula || '').toLowerCase().includes(termo))
     }
     return [...lista].sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt', { sensitivity: 'base' }))
   })
@@ -87,7 +85,6 @@ export const useAlunosStore = defineStore('alunos', () => {
     return {
       id: d.id || newId(),
       nome: (d.nome || '').trim(),
-      email: (d.email || '').trim(),
       telefone: (d.telefone || '').trim(),
       matricula: (d.matricula || '').trim(),
       ativo: d.ativo !== false,

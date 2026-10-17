@@ -19,10 +19,6 @@
         </div>
       </div>
       <div class="field">
-        <label for="mEmail">Email</label>
-        <input id="mEmail" v-model="form.email" type="email" placeholder="Ex.: maria@email.com" />
-      </div>
-      <div class="field">
         <label for="mAtivo">Situação</label>
         <select id="mAtivo" v-model="form.ativo">
           <option :value="true">Ativo</option>
@@ -49,7 +45,7 @@ const route = useRoute()
 const router = useRouter()
 const editandoId = ref(null)
 
-const form = reactive({ nome: '', matricula: '', email: '', telefone: '', ativo: true })
+const form = reactive({ nome: '', matricula: '', telefone: '', ativo: true })
 
 onMounted(async () => {
   await store.carregar()
@@ -59,7 +55,6 @@ onMounted(async () => {
     if (a) {
       form.nome = a.nome || ''
       form.matricula = a.matricula || ''
-      form.email = a.email || ''
       form.telefone = a.telefone || ''
       form.ativo = a.ativo !== false
       editandoId.value = a.id
@@ -70,7 +65,6 @@ onMounted(async () => {
 function limpar() {
   form.nome = ''
   form.matricula = ''
-  form.email = ''
   form.telefone = ''
   form.ativo = true
   editandoId.value = null

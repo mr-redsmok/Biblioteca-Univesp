@@ -59,7 +59,6 @@ export function toAluno(a) {
   return {
     id: a.id,
     nome: (a.nome || '').trim(),
-    email: (a.email || '').trim() || null,
     telefone: (a.telefone || '').trim() || null,
     matricula: (a.matricula || '').trim() || null,
     ativo: a.ativo !== false
@@ -70,7 +69,6 @@ export function fromAluno(row) {
   return {
     id: row.id,
     nome: row.nome || '',
-    email: row.email || '',
     telefone: row.telefone || '',
     matricula: row.matricula || '',
     ativo: row.ativo !== false,
