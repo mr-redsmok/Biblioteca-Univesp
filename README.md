@@ -81,7 +81,7 @@ Para usar o Supabase, copie `.env.example` para `.env` e preencha as credenciais
 - Bloqueio de duplicidade por ISBN
 - Exportar / Importar acervo em JSON
 - Gestão de alunos e matrículas, com turma e ano letivo
-- Importação de alunos do SED por CSV, com prévia, confirmação e proteção contra duplicidade
+- Importação de alunos por CSV, com prévia, confirmação e proteção contra duplicidade
 - Inativação automática de alunos com situação diferente de "Ativo" e seleção manual de possíveis saídas
 - Empréstimos com pesquisa e seleção do livro no acervo, devolução e controle de atrasos
 - Configuração do prazo padrão de empréstimo (1 a 90 dias)
