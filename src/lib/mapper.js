@@ -56,11 +56,14 @@ export function fromExemplar(row) {
 }
 
 export function toAluno(a) {
+  const ano = Number(a.anoLetivo)
   return {
     id: a.id,
     nome: (a.nome || '').trim(),
     telefone: (a.telefone || '').trim() || null,
     matricula: (a.matricula || '').trim() || null,
+    turma: (a.turma || '').trim() || null,
+    ano_letivo: Number.isFinite(ano) && ano > 0 ? ano : null,
     ativo: a.ativo !== false
   }
 }
@@ -71,6 +74,8 @@ export function fromAluno(row) {
     nome: row.nome || '',
     telefone: row.telefone || '',
     matricula: row.matricula || '',
+    turma: row.turma || '',
+    anoLetivo: row.ano_letivo ?? null,
     ativo: row.ativo !== false,
     criadoEm: row.criado_em || null
   }

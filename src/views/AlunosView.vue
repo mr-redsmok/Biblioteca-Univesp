@@ -4,6 +4,14 @@
 
     <div class="toolbar">
       <input v-model="store.filtro" type="text" placeholder="Filtrar por nome ou matrícula…" aria-label="Filtrar alunos" />
+      <select v-model="store.filtroTurma" aria-label="Filtrar por turma">
+        <option value="">Todas as turmas</option>
+        <option v-for="t in store.turmasDisponiveis" :key="t" :value="t">{{ t }}</option>
+      </select>
+      <select v-model="store.filtroAno" aria-label="Filtrar por ano letivo">
+        <option value="">Todos os anos</option>
+        <option v-for="a in store.anosDisponiveis" :key="a" :value="String(a)">{{ a }}</option>
+      </select>
       <span class="count">{{ store.alunosFiltrados.length }} aluno(s) · {{ origemText }}</span>
     </div>
 
@@ -13,6 +21,9 @@
         <div class="linha_info">
           <strong>{{ a.nome }}</strong>
           <span class="hint">Matrícula: {{ a.matricula || '—' }} · {{ a.telefone || '—' }}</span>
+          <span v-if="a.turma || a.anoLetivo" class="hint">
+            Turma: {{ a.turma || '—' }} · Ano letivo: {{ a.anoLetivo || '—' }}
+          </span>
         </div>
         <span class="selo" :class="a.ativo ? 'ok' : 'off'">{{ a.ativo ? '✅ Ativo' : '⛔ Inativo' }}</span>
         <div class="linha_acoes">

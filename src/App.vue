@@ -16,6 +16,10 @@
             <router-link to="/buscar" class="side_link" :class="{ active: $route.name==='buscar' }">🔎 Buscar livro</router-link>
           </div>
         </div>
+        <router-link to="/emprestimos" class="side_group_btn solo" :class="{ active: $route.name==='emprestimos' }">
+          <span>📦 Empréstimos</span>
+          <span v-if="badgeEmp" class="badge_num">{{ badgeEmp }}</span>
+        </router-link>
         <div class="side_group">
           <button type="button" class="side_group_btn" :class="{ active: grupoAtivo==='alunos' }" @click="alternar('alunos')">
             <span>🎓 Alunos</span><span class="seta" :class="{ aberta: aberto.alunos }">▸</span>
@@ -25,7 +29,8 @@
             <router-link to="/matriculas" class="side_link" :class="{ active: $route.name==='matriculas' }">🪪 Matrículas</router-link>
           </div>
         </div>
-        <router-link to="/configuracoes" class="side_group_btn solo" :class="{ active: $route.name==='configuracoes' }">⚙️ Tombo</router-link>
+
+        <router-link to="/configuracoes" class="side_group_btn solo" :class="{ active: $route.name==='configuracoes' }">⚙️ Configurações</router-link>
       </nav>
     </aside>
 
@@ -56,6 +61,7 @@
 import { onMounted, provide, reactive, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAcervoStore } from '@/stores/acervo.js'
+import { useEmprestimosStore } from '@/stores/emprestimos.js'
 import { toast } from '@/lib/utils.js'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import AppToast from '@/components/AppToast.vue'
@@ -64,12 +70,18 @@ import { useConfirmModal } from '@/composables/useConfirmModal.js'
 const acervo = useAcervoStore()
 const route = useRoute()
 const { modal, abrir: abrirModalExcluir, fechar } = useConfirmModal()
+const emprestimos = useEmprestimosStore()
+
+const badgeEmp = computed(() => {
+  const n = emprestimos.atrasados.length || emprestimos.ativos.length
+  return n > 0 ? n : ''
+})
 
 const aberto = reactive({ catalogo: true, alunos: false })
 
 const grupoDaRota = (nome) => {
   if (['catalogo', 'cadastrar', 'editar', 'buscar'].includes(nome)) return 'catalogo'
-  if (['alunos', 'matriculas'].includes(nome)) return 'alunos'
+  if (['alunos', 'matriculas', 'alunos-importar'].includes(nome)) return 'alunos'
   return null
 }
 
@@ -86,6 +98,7 @@ watch(() => route.name, (nome) => {
 
 onMounted(() => {
   acervo.carregar()
+  emprestimos.carregar()
 })
 
 async function confirmarModal() {
@@ -188,6 +201,14 @@ provide('modalExcluir', abrirModalExcluir)
 }
 .side_group_btn .seta.aberta {
   transform: rotate(90deg);
+}
+.badge_num {
+  background: var(--err);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 8px;
 }
 .gaveta {
   display: flex;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { toSupabase, fromSupabase, isIsbnDuplicadoErro } from '@/lib/mapper.js'
+import { toSupabase, fromSupabase, isIsbnDuplicadoErro, toAluno, fromAluno } from '@/lib/mapper.js'
 
 describe('mapper livro <-> supabase', () => {
   it('toSupabase envia só colunas do banco', () => {
@@ -58,5 +58,55 @@ describe('mapper livro <-> supabase', () => {
     expect(isIsbnDuplicadoErro({ code: '23505' })).toBe(true)
     expect(isIsbnDuplicadoErro({ message: 'duplicate isbn' })).toBe(true)
     expect(isIsbnDuplicadoErro({ message: 'outro' })).toBe(false)
+  })
+})
+
+describe('mapper aluno <-> supabase', () => {
+  it('toAluno mapeia turma, ano letivo e normaliza campos', () => {
+    const out = toAluno({
+      id: 'abc',
+      nome: '  Maria Silva ',
+      telefone: '',
+      matricula: ' 000012345-0 ',
+      turma: ' 6º A ',
+      anoLetivo: '2026',
+      ativo: true
+    })
+
+    expect(out).toEqual({
+      id: 'abc',
+      nome: 'Maria Silva',
+      telefone: null,
+      matricula: '000012345-0',
+      turma: '6º A',
+      ano_letivo: 2026,
+      ativo: true
+    })
+  })
+
+  it('toAluno envia ano letivo nulo quando vazio', () => {
+    const out = toAluno({ id: 'abc', nome: 'Maria', anoLetivo: '' })
+    expect(out.ano_letivo).toBeNull()
+  })
+
+  it('fromAluno preenche defaults e lê turma/ano letivo', () => {
+    const comCampos = fromAluno({
+      id: 'abc',
+      nome: 'Maria',
+      telefone: null,
+      matricula: '000012345-0',
+      turma: '6º A',
+      ano_letivo: 2026,
+      ativo: true,
+      criado_em: '2026-10-20T00:00:00Z'
+    })
+
+    expect(comCampos.turma).toBe('6º A')
+    expect(comCampos.anoLetivo).toBe(2026)
+    expect(comCampos.telefone).toBe('')
+
+    const semCampos = fromAluno({ id: 'abc', nome: 'Maria', ativo: true })
+    expect(semCampos.turma).toBe('')
+    expect(semCampos.anoLetivo).toBeNull()
   })
 })

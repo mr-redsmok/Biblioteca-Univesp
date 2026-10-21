@@ -11,6 +11,7 @@
       </span>
       <div class="card-actions">
         <router-link :to="'/cadastrar/' + livro.id">✏️ Editar</router-link> &nbsp;
+        <router-link :to="{ name: 'emprestimos', query: { livro: livro.id } }">📦 Emprestar</router-link> &nbsp;
         <a href="#" style="color:var(--err)" @click.prevent="emit('excluir', livro.id)">🗑️ Excluir</a>
       </div>
     </div>
