@@ -48,7 +48,6 @@ cd biblioteca-univesp
 
 ```bash
 cp .env.example .env
-# preencha VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
 npm install
 npm run dev
 ```
