@@ -12,6 +12,8 @@
 
 Esse projeto faz parte do **Projeto Integrador** do segundo semestre de 2026 da UNIVESP — Eixo de Computação e tem como finalidade facilitar e automatizar a gestão de cadastro e empréstimos de livros em bibliotecas escolares/institucionais.
 
+A versão atual do frontend está em **Vue 3 + Vite**, com integração ao Supabase e fallback para `localStorage`.
+
 ## Autores
 
 | Nome | RA |
@@ -42,21 +44,28 @@ git clone https://github.com/mr-redsmok/Biblioteca-Univesp
 cd biblioteca-univesp
 ```
 
-### 2. Rode o projeto Vue (atual)
+### 2. Configure o ambiente e rode o projeto Vue
 
 ```bash
+cp .env.example .env
+# preencha VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
 npm install
 npm run dev
 ```
 
-- Acesse pelo navegador: http://localhost:5173
-- Online: https://biblioteca-univesp-ten.vercel.app/
+Sem `.env`, o app funciona apenas com `localStorage` (útil para testar a interface).
+
+Para usar o Supabase, copie `.env.example` para `.env` e preencha as credenciais do projeto. A migração `sql/001_alunos_turma.sql` já está aplicada no banco; para um novo ambiente, execute-a no SQL Editor.
+
+- Após iniciar, o Vite exibe a URL local no terminal. Acesse essa URL — por padrão, `http://localhost:5174`.
+- A porta padrão está definida em `vite.config.js` e pode ser alterada ali.
+- Demonstração online: https://biblioteca-univesp-ten.vercel.app/
 
 ### Scripts
 
 | Comando | O que faz |
 |---------|-----------|
-| `npm run dev` | Sobe Vite em modo dev (porta 5173) |
+| `npm run dev` | Sobe o servidor de desenvolvimento do Vite (porta padrão 5174) |
 | `npm run build` | Gera `dist/` para produção |
 | `npm run preview` | Serve `dist/` localmente (porta 4173) |
 | `npm run lint` | Roda ESLint em `src/` e `tests/` |
@@ -72,6 +81,11 @@ npm run dev
 - Edição e exclusão de livros
 - Bloqueio de duplicidade por ISBN
 - Exportar / Importar acervo em JSON
+- Gestão de alunos e matrículas, com turma e ano letivo
+- Importação de alunos do SED por CSV, com prévia, confirmação e proteção contra duplicidade
+- Inativação automática de alunos com situação diferente de "Ativo" e seleção manual de possíveis saídas
+- Empréstimos com pesquisa e seleção do livro no acervo, devolução e controle de atrasos
+- Configuração do prazo padrão de empréstimo (1 a 90 dias)
 - Interface dark mode com abas
 - Acessibilidade básica (ARIA roles)
 
@@ -80,67 +94,55 @@ npm run dev
 | Camada | Tecnologia |
 |--------|------------|
 | Frontend | Vue 3 + Vite 5 + Vue Router 4 + Pinia 2 |
-| Persistência atual | localStorage (navegador: `sgbl_livros`, `sgbl_tombo_seq`, `sgbl_api_cache`) |
-| Banco de dados | PostgreSQL (Supabase) - em implementação|
-| Hospedagem | Vercel
-| Versionamento | Git 
-| Busca de livros | Google Books API + Open Library API + Seed local (offline) |
+| Persistência | Supabase (PostgreSQL) + cache local em `localStorage` |
+| Banco de dados | PostgreSQL (Supabase) |
+| Hospedagem | Vercel |
+| Versionamento | Git |
+| Busca de livros | Google Books + Open Library + seed local; busca de exemplares no acervo |
 
 ## Estrutura do projeto (Atual — Vue)
 
 ```
 biblioteca-univesp/
 ├── src/
-│   ├── main.js             (createApp + Pinia + Router)
-│   ├── App.vue             (header/abbas, router-view, modal global, toast)
-│   ├── router/index.js     (/catalogo, /cadastrar, /cadastrar/:id, /buscar, /configuracoes)
-│   ├── stores/acervo.js    (CRUD, filtros/ordenação, export/import JSON, localStorage)
-│   │   ├── stores/toast.js     (fila de toast, usado por utils.toast)
-│   │   ├── stores/precadastro.js (ponte Search -> Form, espelha sessionStorage)
-│   ├── views/
-│   │   ├── CatalogView.vue (toolbar + count, usa FiltersBar/BookCard/ImportExport)
-│   │   ├── FormView.vue    (thin; lógica em useLivroForm)
-│   │   ├── SearchView.vue  (busca API + pré-cadastro)
-│   │   └── ConfigView.vue  (formato do tombo)
+│   ├── main.js
+│   ├── App.vue
+│   ├── router/index.js
+│   ├── stores/          (acervo, alunos, emprestimos, toast, precadastro)
+│   ├── views/           (catálogo, cadastro, busca, alunos, matrículas,
+│   │                     importação, empréstimos, configurações)
+│   ├── components/
 │   ├── composables/
-│   │   ├── useBuscaLivros.js (useBuscaLivros + useAutofill, Abort + debounce)
-│   │   ├── useConfirmModal.js (estado do modal excluir)
-│   │   └── useLivroForm.js   (form, dirty-guard, autofill, salvar)
-│   ├── lib/
-│   │   ├── api.js          (Open Library primeiro, Google fallback, cache 30min)
-│   │   ├── autofill.js     (escolherMelhorResultado, enriquecer, patch)
-│   │   ├── validate.js     (validarLivro, sanitizar, isbnDuplicado)
-│   │   ├── meta.js         (metaBits/metaBusca dos cards)
-│   │   ├── tombo.js        (gerarTombo, peek, config sgbl_tombo_config)
-│   │   └── utils.js        (normIsbn, newId via randomUUID, formatDesc, toast)
-│   ├── assets/seed.json    (fallback offline curado)
-│   ├── components/         (BookCard, BookCover, FiltersBar, ImportExport, ConfirmModal, AppToast)
-│   ├── tests/              (vitest: validate, tombo, meta)
-├── css/                    (legado reaproveitado via @import no App.vue)
-├── public/ / index.html / vite.config.js (@ → ./src)
+│   └── lib/             (api, autofill, validate, meta, tombo, sedCsv,
+│                         importAlunos, configEmprestimo, supabase, mapper, turmas)
+├── css/                 (legado reaproveitado via @import no App.vue)
+├── sql/                 (001_alunos_turma.sql)
+├── tests/               (Vitest)
+├── public/ / index.html / vite.config.js
 └── README.md
 ```
 
 > Histórico: versão anterior em `css/ + js/` vanilla foi migrada para Vue. O `css/` foi mantido como legado.
 
 
-Próximas Implementações (Supabase pausado para revisão — sem migração por enquanto)
-- Integração com Supabase
-- Migração da persistência de dados do localStorage para PostgreSQL
-- Persistência centralizada dos dados
-- Melhorias na sincronização do acervo
+## Próximos passos
 
-## Persistência atual (decisão)
+- Autenticação e perfis de acesso
+- Dashboard e relatórios de circulação
+- Gestão individual de exemplares e estados
 
-- Mantido `localStorage` por enquanto para facilitar revisão em grupo (sem `.env`, sem backend).
-- Chaves: `sgbl_livros` (acervo), `sgbl_tombo_seq` + `sgbl_tombo_config` (tombo), `sgbl_api_cache` (busca 30min), `sgbl_precadastro` (ponte Search→Form via store).
-- Supabase/Postgres segue como próximo passo pós-revisão; sem código de migração neste commit.
+## Persistência
+
+- Com `.env` configurado, os dados são gravados no Supabase e mantidos em cache local para fallback.
+- Sem `.env`, o app funciona somente com `localStorage`.
+- Chaves locais: `sgbl_livros`, `sgbl_alunos`, `sgbl_emprestimos`, `sgbl_tombo_seq`, `sgbl_tombo_config`, `sgbl_emprestimo_config`, `sgbl_api_cache` e `sgbl_precadastro`.
+- A migração `sql/001_alunos_turma.sql` adiciona `turma`, `ano_letivo` e o índice único de matrícula em `alunos`.
 
 ## Limitações conhecidas
 
-- Sem backend: cada navegador tem seu acervo; `sgbl_tombo_seq` colide entre dispositivos.
-- Exemplares são só `{id, tombo}` + quantidade — sem status individual (disponível/emprestado/danificado).
-- Módulo de empréstimos/devoluções ainda não implementado (só cadastro/catálogo/busca/tombo).
+- O prazo padrão de empréstimo fica no `localStorage` de cada navegador; não sincroniza entre dispositivos.
+- A gestão de exemplares ainda é limitada: o acervo controla quantidade/tombo, sem status individual completo.
+- Não há autenticação/perfis; o acesso ao app é aberto.
 - `node_modules/` e `dist/` não são versionados (ver `.gitignore`).
 
 
