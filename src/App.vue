@@ -2,16 +2,16 @@
   <header class="header">
     <div class="container">
       <h1>📚<span> Biblioteca</span> — Sistema de Gestão</h1>
-      <nav class="tabs" role="tablist">
-        <router-link to="/catalogo" class="tab" :class="{ active: $route.name==='catalogo' }" role="tab">📖 Catálogo</router-link>
-        <router-link to="/cadastrar" class="tab" :class="{ active: $route.name==='cadastrar' || $route.name==='editar' }" role="tab">➕ Cadastrar</router-link>
-        <router-link to="/buscar" class="tab" :class="{ active: $route.name==='buscar' }" role="tab">🔎 Buscar livro</router-link>
-        <router-link to="/configuracoes" class="tab" :class="{ active: $route.name==='configuracoes' }" role="tab">⚙️ Tombo</router-link>
+      <nav class="tabs" aria-label="Navegação principal">
+        <router-link to="/catalogo" class="tab" :class="{ active: $route.name==='catalogo' }"><span aria-hidden="true">📖</span> Catálogo</router-link>
+        <router-link to="/cadastrar" class="tab" :class="{ active: $route.name==='cadastrar' || $route.name==='editar' }"><span aria-hidden="true">➕</span> Cadastrar</router-link>
+        <router-link to="/buscar" class="tab" :class="{ active: $route.name==='buscar' }"><span aria-hidden="true">🔎</span> Buscar livro</router-link>
+        <router-link to="/configuracoes" class="tab" :class="{ active: $route.name==='configuracoes' }"><span aria-hidden="true">⚙️</span> Tombo</router-link>
       </nav>
     </div>
   </header>
 
-  <main class="main">
+  <main class="main" tabindex="-1">
     <router-view />
   </main>
 
@@ -80,6 +80,9 @@ provide('modalExcluir', abrirModalExcluir)
 .main {
   flex: 1;
   padding-bottom: 20px;
+}
+.main:focus {
+  outline: none;
 }
 .view {
   display: block !important;

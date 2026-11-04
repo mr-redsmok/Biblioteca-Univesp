@@ -10,8 +10,10 @@
         {{ livro.exemplares }} exemplar(es) {{ livro.exemplares > 0 ? 'disponível(is)' : '— esgotado' }}
       </span>
       <div class="card-actions">
-        <router-link :to="'/cadastrar/' + livro.id">✏️ Editar</router-link> &nbsp;
-        <a href="#" style="color:var(--err)" @click.prevent="emit('excluir', livro.id)">🗑️ Excluir</a>
+        <router-link :to="'/cadastrar/' + livro.id"><span aria-hidden="true">✏️</span> Editar</router-link>
+        <button type="button" class="linklike" @click="emit('excluir', livro.id)">
+          <span aria-hidden="true">🗑️</span> Excluir
+        </button>
       </div>
     </div>
   </div>

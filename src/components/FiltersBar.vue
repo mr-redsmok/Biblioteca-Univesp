@@ -24,7 +24,7 @@
       <span>Ano</span>
       <input v-model="acervo.filtroAno" type="number" min="0" max="2100" placeholder="Ex.: 1999" aria-label="Filtrar por ano" />
     </label>
-    <button v-if="temFiltro" class="btn-ghost btn-small" title="Limpar filtros" @click="limpar">✕ Limpar</button>
+    <button v-if="temFiltro" class="btn-ghost btn-small" @click="limpar"><span aria-hidden="true">✕</span> Limpar filtros</button>
   </div>
 </template>
 
