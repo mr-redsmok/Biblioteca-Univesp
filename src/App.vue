@@ -266,6 +266,9 @@ provide('modalExcluir', abrirModalExcluir)
   flex: 1;
   padding-bottom: 20px;
 }
+.main:focus {
+  outline: none;
+}
 .view {
   display: block !important;
 }
