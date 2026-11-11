@@ -44,6 +44,7 @@ export function isIsbnDuplicadoErro(err) {
 
 export function toExemplar(livroId, item, meta) {
   return {
+    id: item.id,
     livro_id: livroId,
     tombo: item.tombo,
     status: 'disponivel',

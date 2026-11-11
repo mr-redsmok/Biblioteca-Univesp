@@ -22,9 +22,14 @@ function setSeq(n) {
   localStorage.setItem(SEQ_KEY, String(n))
 }
 
-function formatarTombo(seq, cfg) {
+export function formatarTombo(seq, cfg) {
   const num = String(seq).padStart(cfg.tamanho, '0')
   return cfg.prefixo + cfg.separador + num
+}
+
+/** Garante que a próxima geração de tombo use uma sequência maior que `min`. */
+export function ajustarSeq(min) {
+  if (min > getSeq()) setSeq(min)
 }
 
 /** Gera um único tombo e incrementa a sequência (side-effect). */

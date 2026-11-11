@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { validarLivro, sanitizar, isbnDuplicado } from '@/lib/validate.js'
-import { gerarTombo } from '@/lib/tombo.js'
+import { gerarTombo, formatarTombo, ajustarSeq, getConfigAtual } from '@/lib/tombo.js'
 import { normIsbn, toast, newId } from '@/lib/utils.js'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase.js'
 import { toSupabase, fromSupabase, isIsbnDuplicadoErro, toExemplar, fromExemplar } from '@/lib/mapper.js'
@@ -62,6 +62,30 @@ export const useAcervoStore = defineStore('acervo', () => {
     }
   }
 
+  // Livros cadastrados com quantidade (exemplares) mas sem linhas em `exemplares`
+  // ficariam sem tombo para empréstimo: gera e grava os que faltam.
+  async function completarExemplares(livrosBanco, exData) {
+    const cfg = getConfigAtual()
+    let seq = Math.max(0, ...exData.map(r => Number(String(r.tombo || '').match(/(\d+)$/)?.[1]) || 0))
+    for (const livro of livrosBanco) {
+      const falta = (Number(livro.exemplares) || 0) - livro.exemplaresLista.length
+      if (falta <= 0) continue
+      const novos = []
+      for (let i = 0; i < falta; i++) {
+        seq++
+        novos.push({ id: newId(), tombo: formatarTombo(seq, cfg) })
+      }
+      const { error } = await supabase.from('exemplares').insert(novos.map(e => toExemplar(livro.id, e, livro)))
+      if (error) {
+        console.warn('[acervo] não foi possível criar exemplares de', livro.titulo, error.message)
+        continue
+      }
+      livro.exemplaresLista = [...livro.exemplaresLista, ...novos]
+        .sort((a, b) => String(a.tombo || '').localeCompare(String(b.tombo || ''), 'pt'))
+    }
+    ajustarSeq(seq)
+  }
+
   async function carregar() {
     const cacheLocal = load()
     if (!isSupabaseConfigured()) {
@@ -88,6 +112,7 @@ export const useAcervoStore = defineStore('acervo', () => {
         }
         return livro
       })
+      await completarExemplares(doBanco, exData || [])
       if (doBanco.length === 0 && cacheLocal.length > 0) {
         // Banco vazio mas há cache local (ex.: antes da migração):
         // NÃO apaga o cache. Mantém local até o usuário cadastrar/migrar.
